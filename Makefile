@@ -1,23 +1,29 @@
-OPENGLLIB= -framework OpenGL
 GLEWLIB= -lGLEW
+
+OS := $(shell uname)
+ifeq ($(OS), Darwin)
+# Run MacOS commands
+OPENGLLIB= -framework OpenGL	
 GLFWLIB = -lglfw
 LIBS=$(OPENGLLIB) $(GLEWLIB) $(GLFWLIB)
+else
+# check for Linux and run other commands
+OPENGLLIB= -lGL
+GLFWLIB = -lglfw3
+LIBS=$(OPENGLLIB) $(GLEWLIB) $(GLFWLIB) -lX11 -lXi -lXrandr -lXxf86vm -lXinerama -lXcursor -lrt -lm -pthread -ldl
+endif
+
 LDFLAGS=-L/usr/local/lib 
 CPPFLAGS=-I/usr/local/include
 
-BIN1=01_triangle
-BIN2=01_triangle_dep
-SRCS1=01_triangle.cpp gl_framework.cpp shader_util.cpp 
-SRCS2=01_triangle_dep.cpp gl_framework.cpp shader_util.cpp 
+BIN=cg_ichi
+SRCS=cg_ichi.cpp gl_framework.cpp shader_util.cpp 
 INCLUDES=gl_framework.hpp shader_util.hpp
 
-all: $(BIN1) $(BIN2)
+all: $(BIN)
 
-$(BIN1): $(SRCS1) $(INCLUDES)
-	g++ $(CPPFLAGS) $(SRCS1) -o $(BIN1) $(LDFLAGS) $(LIBS)
-
-$(BIN2): $(SRCS2) $(INCLUDES)
-	g++ $(CPPFLAGS) $(SRCS2) -o $(BIN2) $(LDFLAGS) $(LIBS)
+$(BIN): $(SRCS) $(INCLUDES)
+	g++ $(CPPFLAGS) $(SRCS) -o $(BIN) $(LDFLAGS) $(LIBS)
 
 clean:
-	rm -f *~ *.o $(BIN1) $(BIN2)
+	rm -f *~ *.o $(BIN)
