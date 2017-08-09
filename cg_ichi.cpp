@@ -1,6 +1,14 @@
 #include "gl_framework.hpp"
 #include "shader_util.hpp"
 
+#include <unistd.h>
+
+#include "glm/vec3.hpp"
+#include "glm/vec4.hpp"
+#include "glm/mat4x4.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
+
 float points[] = {
     0.0f,  0.5f,  0.0f,
     0.5f, -0.5f,  0.0f,
@@ -9,6 +17,16 @@ float points[] = {
 
 GLuint shaderProgram;
 GLuint vbo, vao;
+
+int width, height;
+
+glm::mat4 rotation_matrix;
+glm::mat4 ortho_matrix;
+glm::mat4 modelview_matrix;
+glm::mat4 look_at;
+GLuint uModelViewMatrix;
+
+GLfloat zrot = 0;
 
 void initShadersGL(void)
 {
@@ -30,7 +48,7 @@ void initVertexBufferGL(void)
   //Set it as the current buffer to be used by binding it
   glBindBuffer (GL_ARRAY_BUFFER, vbo);
   //Copy the points into the current buffer - 9 float values, start pointer and static data
-  glBufferData (GL_ARRAY_BUFFER, 9 * sizeof (float), points, GL_STATIC_DRAW);
+  glBufferData (GL_ARRAY_BUFFER, 9 * sizeof (float), points, GL_DYNAMIC_DRAW);
 
   //Ask GL for a Vertex Attribute Object (vao)
   glGenVertexArrays (1, &vao);
@@ -41,6 +59,8 @@ void initVertexBufferGL(void)
   //This the layout of our first vertex buffer
   //"0" means define the layout for attribute number 0. "3" means that the variables are vec3 made from every 3 floats 
   glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
+  uModelViewMatrix = glGetUniformLocation(shaderProgram, "uModelViewMatrix");
 }
 
 void renderGL(void)
@@ -49,8 +69,16 @@ void renderGL(void)
 
   glUseProgram(shaderProgram);
 
-  glBindVertexArray (vao);
+  // glBindVertexArray (vao);
 
+
+  look_at = glm::lookAt(glm::vec3(0.0, 0.0, -2.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(glm::sin(zrot), glm::cos(zrot), 0.0));
+  ortho_matrix = glm::ortho(-1.0 * (width/100), 1.0 * (width/100), -1.0 * (height/100), 1.0 * (height/100), -10.0, 10.0);
+  modelview_matrix = ortho_matrix * look_at;
+
+  glBufferSubData (GL_ARRAY_BUFFER, 0, 9 * sizeof (float), points);
+
+  glUniformMatrix4fv(uModelViewMatrix, 1, GL_FALSE, glm::value_ptr(modelview_matrix));
   // Draw points 0-3 from the currently bound VAO with current in-use shader
   glDrawArrays(GL_TRIANGLES, 0, 3);
 }
@@ -110,6 +138,8 @@ int main(int argc, char** argv)
   // Ensure we can capture the escape key being pressed below
   glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
+  glfwSetMouseButtonCallback(window, csX75::mouse_button_callback);
+
   //Initialize GL state
   csX75::initGL();
   initShadersGL();
@@ -118,7 +148,8 @@ int main(int argc, char** argv)
   // Loop until the user closes the window
   while (glfwWindowShouldClose(window) == 0)
     {
-       
+      glfwGetWindowSize(window, &width, &height);
+
       // Render here
       renderGL();
 

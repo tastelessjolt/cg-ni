@@ -1,5 +1,8 @@
 #include "gl_framework.hpp"
 
+extern GLfloat zrot;
+extern float points[];
+
 namespace csX75
 {
   //! Initialize GL State
@@ -36,6 +39,35 @@ namespace csX75
     //!Close the window if the ESC key was pressed
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
       glfwSetWindowShouldClose(window, GL_TRUE);
+    else if (key == GLFW_KEY_LEFT && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+      points[0] += zrot;
+      points[1] += zrot;
+      points[2] += zrot;
+      points[3] += zrot;
+      points[4] += zrot;
+      points[5] += zrot;
+      zrot += 0.3;
+    } 
+    else if (key == GLFW_KEY_RIGHT && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+      points[0] -= zrot;
+      points[1] -= zrot;
+      points[2] -= zrot;
+      points[3] -= zrot;
+      points[4] -= zrot;
+      points[5] -= zrot;
+      zrot -= 0.3;
+    }
+  }
+
+  //!GLFW mouse click callback
+  void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+  {
+      if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS){
+        double xpos, ypos;
+        glfwGetCursorPos(window, &xpos, &ypos);
+
+        std::cout << "Left clicked me at " << xpos << ", " << ypos << std::endl;        
+      }
   }
 };  
   

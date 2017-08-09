@@ -3,7 +3,7 @@ GLEWLIB= -lGLEW
 OS := $(shell uname)
 ifeq ($(OS), Darwin)
 # Run MacOS commands
-OPENGLLIB= -framework OpenGL	
+OPENGLLIB= -framework OpenGL
 GLFWLIB = -lglfw
 LIBS=$(OPENGLLIB) $(GLEWLIB) $(GLFWLIB)
 else
