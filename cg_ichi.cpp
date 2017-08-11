@@ -9,22 +9,13 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-std::vector<float> points = {
-    // 0.0f,  0.5f,  0.0f,
-    // 0.5f, -0.5f,  0.0f,
-    // -0.5f, -0.5f,  0.0f
-  };
+std::vector<float> points;
+std::vector<float> triangles;
 
-std::vector<float> triangles = {
-    // 0.0f,  0.5f,  0.0f,
-    // 0.5f, -0.5f,  0.0f,
-    // -0.5f, -0.5f,  0.0f
-  };
+int mode = CI_MODELLING_MODE;
 
 GLuint shaderProgram;
 GLuint vbo_points, vbo_triangles, vao_points, vao_triangles;
-
-int width, height;
 
 glm::mat4 rotation_matrix;
 glm::mat4 ortho_matrix;
@@ -89,8 +80,24 @@ void renderGL(void)
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glUseProgram(shaderProgram);
   
-  look_at = glm::lookAt(glm::vec3(xpos, ypos, -2.0), glm::vec3(xpos, ypos, 1.0), glm::vec3(0.0, 1.0, 0.0));
-  ortho_matrix = glm::ortho(-1.0 /** (width/100)*/, 1.0 /** (width/100)*/, -1.0 /** (height/100)*/, 1.0 /** (height/100)*/, -10.0, 10.0);
+  if (mode == CI_MODELLING_MODE){
+    look_at = glm::lookAt(glm::vec3(xpos, ypos, -2.0), glm::vec3(xpos, ypos, 1.0), glm::vec3(0.0, 1.0, 0.0));
+  } else {
+
+    // glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(xpos, ypos, 1.0));
+    
+    // glm::mat4 transi = glm::translate(glm::mat4(1.0f), glm::vec3(-xpos, -ypos, -1.0));
+
+    rotation_matrix = glm::rotate(glm::mat4(1.0f), xrot, glm::vec3(1.0f,0.0f,0.0f));
+    rotation_matrix = glm::rotate(rotation_matrix, yrot, glm::vec3(0.0f,1.0f,0.0f));
+    rotation_matrix = glm::rotate(rotation_matrix, zrot, glm::vec3(0.0f,0.0f,1.0f));
+    look_at = glm::lookAt(glm::vec3(xpos, ypos, -2.0), glm::vec3(xpos, ypos, 1.0), glm::vec3(0.0, 1.0, 0.0));
+
+    // look_at = (transi * rotation_matrix * trans * look_at);
+    look_at = (look_at * rotation_matrix);
+  }
+  
+  ortho_matrix = glm::ortho(-1.0, 1.0, -1.0, 1.0, -10.0, 10.0);
   modelview_matrix = ortho_matrix * look_at;
   glUniformMatrix4fv(uModelViewMatrix, 1, GL_FALSE, glm::value_ptr(modelview_matrix));
   

@@ -15,9 +15,9 @@ A rudimentary modelling framework made using OpenGL
 `A` Camera left
 `S` Camera down
 `D` Camera right
+`C` Close the polygon started
 
 `I` Inspection Mode
-`C` Close the polygon started
 
 Navigation:
 

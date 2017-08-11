@@ -50,22 +50,22 @@ namespace csX75
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
       glfwSetWindowShouldClose(window, GL_TRUE);
     else if (key == GLFW_KEY_LEFT && (action == GLFW_PRESS || action == GLFW_REPEAT)){
-      
+      yrot-=0.2;
     } 
     else if (key == GLFW_KEY_RIGHT && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      
+      yrot+=0.2;
     }
     else if (key == GLFW_KEY_UP && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      
+      xrot-=0.2;
     }
     else if (key == GLFW_KEY_DOWN && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      
+      xrot+=0.2;
     }
     else if (key == GLFW_KEY_PAGE_UP && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      
+      zrot-=0.2;
     }
     else if (key == GLFW_KEY_PAGE_DOWN && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      
+      zrot+=0.2;
     }
     else if (key == GLFW_KEY_W && (action == GLFW_PRESS || action == GLFW_REPEAT)){
       ypos += 0.05;
@@ -91,7 +91,7 @@ namespace csX75
     }
     else if (key == GLFW_KEY_C && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
       
-      for (int i = 0; i < points.size()-6; ++i){
+      for (int i = 0; i < ((int)points.size()-6); i += 3){
         triangles.push_back(points[i]);
         triangles.push_back(points[i+1]);
         triangles.push_back(points[i+2]);
@@ -105,6 +105,12 @@ namespace csX75
 
       points.clear();
 
+    }
+    else if (key == GLFW_KEY_M && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+      mode = CI_MODELLING_MODE;
+    }
+    else if (key == GLFW_KEY_I && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+      mode = CI_INSPECTION_MODE;
     }
   }
 
@@ -121,7 +127,7 @@ namespace csX75
   //!GLFW mouse click callback
   void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
   {
-      if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS){
+      if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && mode == CI_MODELLING_MODE){
         double xclk, yclk;
         glfwGetCursorPos(window, &xclk, &yclk);
 

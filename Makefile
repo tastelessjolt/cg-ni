@@ -14,7 +14,7 @@ LIBS=$(OPENGLLIB) $(GLEWLIB) $(GLFWLIB) -lX11 -lXi -lXrandr -lXxf86vm -lXinerama
 endif
 
 LDFLAGS=-L/usr/local/lib 
-CPPFLAGS=-I/usr/local/include
+CPPFLAGS=-I/usr/local/include -g
 
 BIN=cg_ichi
 SRCS=cg_ichi.cpp gl_framework.cpp shader_util.cpp 
