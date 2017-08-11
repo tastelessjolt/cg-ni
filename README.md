@@ -2,7 +2,7 @@
 A rudimentary modelling framework made using OpenGL
 
 
-##Controls
+## Controls
 
 `M` Modelling Mode
 
