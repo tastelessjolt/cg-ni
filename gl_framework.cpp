@@ -1,7 +1,17 @@
 #include "gl_framework.hpp"
 
+extern GLfloat xrot;
+extern GLfloat yrot;
 extern GLfloat zrot;
-extern float points[];
+
+extern GLfloat xpos;
+extern GLfloat ypos;
+extern GLfloat zpos;
+
+extern std::vector<float> points;
+extern std::vector<float> triangles;
+
+extern int mode;
 
 namespace csX75
 {
@@ -40,35 +50,92 @@ namespace csX75
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
       glfwSetWindowShouldClose(window, GL_TRUE);
     else if (key == GLFW_KEY_LEFT && (action == GLFW_PRESS || action == GLFW_REPEAT)){
-      points[0] += zrot;
-      points[1] += zrot;
-      points[2] += zrot;
-      points[3] += zrot;
-      points[4] += zrot;
-      points[5] += zrot;
-      zrot += 0.3;
+      
     } 
     else if (key == GLFW_KEY_RIGHT && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      points[0] -= zrot;
-      points[1] -= zrot;
-      points[2] -= zrot;
-      points[3] -= zrot;
-      points[4] -= zrot;
-      points[5] -= zrot;
-      zrot -= 0.3;
+      
+    }
+    else if (key == GLFW_KEY_UP && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+      
+    }
+    else if (key == GLFW_KEY_DOWN && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+      
+    }
+    else if (key == GLFW_KEY_PAGE_UP && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+      
+    }
+    else if (key == GLFW_KEY_PAGE_DOWN && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+      
+    }
+    else if (key == GLFW_KEY_W && (action == GLFW_PRESS || action == GLFW_REPEAT)){
+      ypos += 0.05;
+    } 
+    else if (key == GLFW_KEY_A && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+      xpos -= 0.05;
+      
+    }
+    else if (key == GLFW_KEY_S && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+      ypos -= 0.05;
+      
+    }
+    else if (key == GLFW_KEY_D && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+      xpos += 0.05;
+      
+    }
+    else if (key == GLFW_KEY_Z && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+      zpos -= 0.05;
+      
+    }
+    else if (key == GLFW_KEY_X && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+      zpos += 0.05;
+    }
+    else if (key == GLFW_KEY_C && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+      
+      for (int i = 0; i < points.size()-6; ++i){
+        triangles.push_back(points[i]);
+        triangles.push_back(points[i+1]);
+        triangles.push_back(points[i+2]);
+        triangles.push_back(points[i+3]);
+        triangles.push_back(points[i+4]);
+        triangles.push_back(points[i+5]);
+        triangles.push_back(points[i+6]);
+        triangles.push_back(points[i+7]);
+        triangles.push_back(points[i+8]);
+      }
+
+      points.clear();
+
     }
   }
 
+  void convert_to_world(GLFWwindow* window, GLint x, GLint y, GLfloat* xf, GLfloat* yf){
+    
+    int width, height;
+    glfwGetWindowSize(window, &width, &height);
+
+    // ensure camera look at vector is normal to xy plane whenever using this fn
+    *xf = -1 * (x - width/2.0)/(width/2.0) + xpos;
+    *yf = -1 * (y - height/2.0)/(height/2.0) + ypos;
+
+  }
   //!GLFW mouse click callback
   void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
   {
       if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS){
-        double xpos, ypos;
-        glfwGetCursorPos(window, &xpos, &ypos);
+        double xclk, yclk;
+        glfwGetCursorPos(window, &xclk, &yclk);
 
-        std::cout << "Left clicked me at " << xpos << ", " << ypos << std::endl;        
+        float x_in, y_in;
+        convert_to_world(window, xclk, yclk, &x_in, &y_in);
+        std::cout << "Left click: (" << x_in << "," << y_in <<  ")" << std::endl;
+
+        points.push_back(x_in);
+        points.push_back(y_in);
+        points.push_back(zpos);
+
       }
   }
+
 };  
   
 

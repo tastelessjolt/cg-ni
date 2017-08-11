@@ -1,10 +1,16 @@
 #ifndef _GL_FRAMEWORK_HPP_
 #define _GL_FRAMEWORK_HPP_
 
+#define CI_MODELLING_MODE 0
+#define CI_INSPECTION_MODE 1
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <GL/glew.h>
+
 #include <iostream>
+#include <vector>
 
 namespace csX75
 {

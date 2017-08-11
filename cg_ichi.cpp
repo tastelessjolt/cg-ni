@@ -9,14 +9,20 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-float points[] = {
-    0.0f,  0.5f,  0.0f,
-    0.5f, -0.5f,  0.0f,
-    -0.5f, -0.5f,  0.0f
+std::vector<float> points = {
+    // 0.0f,  0.5f,  0.0f,
+    // 0.5f, -0.5f,  0.0f,
+    // -0.5f, -0.5f,  0.0f
+  };
+
+std::vector<float> triangles = {
+    // 0.0f,  0.5f,  0.0f,
+    // 0.5f, -0.5f,  0.0f,
+    // -0.5f, -0.5f,  0.0f
   };
 
 GLuint shaderProgram;
-GLuint vbo, vao;
+GLuint vbo_points, vbo_triangles, vao_points, vao_triangles;
 
 int width, height;
 
@@ -26,7 +32,13 @@ glm::mat4 modelview_matrix;
 glm::mat4 look_at;
 GLuint uModelViewMatrix;
 
+GLfloat xrot = 0;
+GLfloat yrot = 0;
 GLfloat zrot = 0;
+
+GLfloat xpos = 0;
+GLfloat ypos = 0;
+GLfloat zpos = 0;
 
 void initShadersGL(void)
 {
@@ -44,43 +56,64 @@ void initShadersGL(void)
 void initVertexBufferGL(void)
 {
   //Ask GL for a Vertex Buffer Object (vbo)
-  glGenBuffers (1, &vbo);
-  //Set it as the current buffer to be used by binding it
-  glBindBuffer (GL_ARRAY_BUFFER, vbo);
-  //Copy the points into the current buffer - 9 float values, start pointer and static data
-  glBufferData (GL_ARRAY_BUFFER, 9 * sizeof (float), points, GL_DYNAMIC_DRAW);
+  glGenBuffers (1, &vbo_points);
 
-  //Ask GL for a Vertex Attribute Object (vao)
-  glGenVertexArrays (1, &vao);
+  // Set it as the current buffer to be used by binding it
+  // glBindBuffer (GL_ARRAY_BUFFER, vbo_points);
+  //Copy the points into the current buffer - 9 float values, start pointer and static data
+  // glBufferData (GL_ARRAY_BUFFER, points.size() * sizeof (float), &points[0], GL_DYNAMIC_DRAW);
+
+  glGenBuffers (1, &vbo_triangles);
+  //   // Set it as the current buffer to be used by binding it
+  // glBindBuffer (GL_ARRAY_BUFFER, vbo_triangles);
+  // //Copy the points into the current buffer - 9 float values, start pointer and static data
+  // glBufferData (GL_ARRAY_BUFFER, triangles.size() * sizeof (float), &triangles[0], GL_DYNAMIC_DRAW);
+
+  //Ask GL for a Vertex Attribute Object (vao_points)
+  glGenVertexArrays (1, &vao_points);
   //Set it as the current array to be used by binding it
-  glBindVertexArray (vao);
+  // glBindVertexArray (vao_points);
   //Enable the vertex attribute
-  glEnableVertexAttribArray (0);
+  // glEnableVertexAttribArray (0);
   //This the layout of our first vertex buffer
   //"0" means define the layout for attribute number 0. "3" means that the variables are vec3 made from every 3 floats 
-  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+  // glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
   uModelViewMatrix = glGetUniformLocation(shaderProgram, "uModelViewMatrix");
+
+  glPointSize(5.0f);
 }
 
 void renderGL(void)
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
   glUseProgram(shaderProgram);
-
-  // glBindVertexArray (vao);
-
-
-  look_at = glm::lookAt(glm::vec3(0.0, 0.0, -2.0), glm::vec3(0.0, 0.0, 1.0), glm::vec3(glm::sin(zrot), glm::cos(zrot), 0.0));
-  ortho_matrix = glm::ortho(-1.0 * (width/100), 1.0 * (width/100), -1.0 * (height/100), 1.0 * (height/100), -10.0, 10.0);
+  
+  look_at = glm::lookAt(glm::vec3(xpos, ypos, -2.0), glm::vec3(xpos, ypos, 1.0), glm::vec3(0.0, 1.0, 0.0));
+  ortho_matrix = glm::ortho(-1.0 /** (width/100)*/, 1.0 /** (width/100)*/, -1.0 /** (height/100)*/, 1.0 /** (height/100)*/, -10.0, 10.0);
   modelview_matrix = ortho_matrix * look_at;
-
-  glBufferSubData (GL_ARRAY_BUFFER, 0, 9 * sizeof (float), points);
-
   glUniformMatrix4fv(uModelViewMatrix, 1, GL_FALSE, glm::value_ptr(modelview_matrix));
-  // Draw points 0-3 from the currently bound VAO with current in-use shader
-  glDrawArrays(GL_TRIANGLES, 0, 3);
+  
+  
+  glBindBuffer (GL_ARRAY_BUFFER, vbo_points);
+  glBufferData (GL_ARRAY_BUFFER, points.size() * sizeof (float), &points[0], GL_DYNAMIC_DRAW);
+  glBindVertexArray (vao_points);
+
+  glEnableVertexAttribArray (0);
+  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
+  glDrawArrays(GL_POINTS, 0, points.size()/3);
+
+
+  glBindBuffer (GL_ARRAY_BUFFER, vbo_triangles);
+  glBufferData (GL_ARRAY_BUFFER, triangles.size() * sizeof (float), &triangles[0], GL_DYNAMIC_DRAW);
+
+  glBindVertexArray (vao_points);
+  glEnableVertexAttribArray (0);
+  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+
+  glDrawArrays(GL_TRIANGLES, 0, triangles.size()/3);
+
 }
 
 int main(int argc, char** argv)
@@ -148,8 +181,6 @@ int main(int argc, char** argv)
   // Loop until the user closes the window
   while (glfwWindowShouldClose(window) == 0)
     {
-      glfwGetWindowSize(window, &width, &height);
-
       // Render here
       renderGL();
 
