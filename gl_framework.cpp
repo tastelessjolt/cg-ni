@@ -112,6 +112,23 @@ namespace csX75
     else if (key == GLFW_KEY_I && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
       mode = CI_INSPECTION_MODE;
     }
+    else if (key == GLFW_KEY_R && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+      int sumx = 0, sumy = 0, sumz = 0;
+      for (int i = 0; i < triangles.size()/9; ++i){
+        sumx += triangles[9*i];
+        sumy += triangles[9*i+1];
+        sumz += triangles[9*i+2];
+      }
+
+      int p = triangles.size()/9;
+      sumx += triangles[9*p + 3] + triangles[9*p + 6];
+      sumy += triangles[9*p + 4] + triangles[9*p + 7];
+      sumz += triangles[9*p + 5] + triangles[9*p + 8];
+
+      xpos = sumx/(p + 2.0);
+      ypos = sumy/(p + 2.0);
+      zpos = sumz/(p + 2.0);
+    }
   }
 
   void convert_to_world(GLFWwindow* window, GLint x, GLint y, GLfloat* xf, GLfloat* yf){
@@ -128,16 +145,30 @@ namespace csX75
   void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
   {
       if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS && mode == CI_MODELLING_MODE){
-        double xclk, yclk;
-        glfwGetCursorPos(window, &xclk, &yclk);
+        
+        if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)){
 
-        float x_in, y_in;
-        convert_to_world(window, xclk, yclk, &x_in, &y_in);
-        std::cout << "Left click: (" << x_in << "," << y_in <<  ")" << std::endl;
+          if (points.size() >= 3){
+            points.pop_back();
+            points.pop_back();
+            points.pop_back();
+          }
 
-        points.push_back(x_in);
-        points.push_back(y_in);
-        points.push_back(zpos);
+        } else {
+
+          double xclk, yclk;
+          glfwGetCursorPos(window, &xclk, &yclk);
+
+          float x_in, y_in;
+          convert_to_world(window, xclk, yclk, &x_in, &y_in);
+          std::cout << "Left click: (" << x_in << "," << y_in <<  ")" << std::endl;
+
+          points.push_back(x_in);
+          points.push_back(y_in);
+          points.push_back(zpos);
+        
+        }
+
 
       }
   }
