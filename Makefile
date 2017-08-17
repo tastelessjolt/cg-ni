@@ -17,13 +17,26 @@ LDFLAGS=-L/usr/local/lib
 CPPFLAGS=-I/usr/local/include -g
 
 BIN=cg_ichi
-SRCS=cg_ichi.cpp gl_framework.cpp shader_util.cpp 
-INCLUDES=gl_framework.hpp shader_util.hpp
+SRC_MAIN=cg_ichi.cpp 
+
+INCLUDES_FW=gl_framework.hpp
+SRC_FW=gl_framework.cpp 
+OBJ_FW=gl_framework.o
+
+INCLUDES_SU=shader_util.hpp
+SRC_SU=shader_util.cpp 
+OBJ_SU=shader_util.o
 
 all: $(BIN)
 
-$(BIN): $(SRCS) $(INCLUDES)
-	g++ $(CPPFLAGS) $(SRCS) -o $(BIN) $(LDFLAGS) $(LIBS)
+$(OBJ_FW): $(INCLUDES_FW) $(SRC_FW)
+	g++ -c $(CPPFLAGS) $(SRC_FW) $(LDFLAGS) $(LIBS)
+
+$(OBJ_SU): $(INCLUDES_SU) $(SRC_SU)
+	g++ -c $(CPPFLAGS) $(SRC_SU) $(LDFLAGS) $(LIBS)
+
+$(BIN): $(OBJ_FW) $(OBJ_SU)
+	g++ $(CPPFLAGS) $(SRC_MAIN) $(OBJ_FW) $(OBJ_SU) -o $(BIN) $(LDFLAGS) $(LIBS)
 
 clean:
 	rm -f *~ *.o $(BIN)
