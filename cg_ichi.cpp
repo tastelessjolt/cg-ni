@@ -31,6 +31,10 @@ GLfloat xpos = 0;
 GLfloat ypos = 0;
 GLfloat zpos = 0;
 
+GLfloat rcol = 0.5f;
+GLfloat gcol = 0.5f;
+GLfloat bcol = 0.5f;
+
 void initShadersGL(void)
 {
   std::string vertex_shader_file("simple_vs.glsl");
@@ -101,25 +105,34 @@ void renderGL(void)
   modelview_matrix = ortho_matrix * look_at;
   glUniformMatrix4fv(uModelViewMatrix, 1, GL_FALSE, glm::value_ptr(modelview_matrix));
   
+  GLuint vp = glGetAttribLocation( shaderProgram, "vp");
+  GLuint vcol = glGetAttribLocation( shaderProgram, "vcol");
   
+
   glBindBuffer (GL_ARRAY_BUFFER, vbo_points);
   glBufferData (GL_ARRAY_BUFFER, points.size() * sizeof (float), &points[0], GL_DYNAMIC_DRAW);
   glBindVertexArray (vao_points);
 
-  glEnableVertexAttribArray (0);
-  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+  glEnableVertexAttribArray (vp);
+  glEnableVertexAttribArray (vcol);
 
-  glDrawArrays(GL_POINTS, 0, points.size()/3);
+  glVertexAttribPointer (vp, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), NULL);
+  glVertexAttribPointer (vcol, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(3 * sizeof(float)));
+
+  glDrawArrays(GL_POINTS, 0, points.size()/6);
 
 
   glBindBuffer (GL_ARRAY_BUFFER, vbo_triangles);
   glBufferData (GL_ARRAY_BUFFER, triangles.size() * sizeof (float), &triangles[0], GL_DYNAMIC_DRAW);
-
   glBindVertexArray (vao_points);
-  glEnableVertexAttribArray (0);
-  glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
-  glDrawArrays(GL_TRIANGLES, 0, triangles.size()/3);
+  glEnableVertexAttribArray (vp);
+  glEnableVertexAttribArray (vcol);
+
+  glVertexAttribPointer (vp, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), NULL);
+  glVertexAttribPointer (vcol, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(3 * sizeof(float)));
+
+  glDrawArrays(GL_TRIANGLES, 0, triangles.size()/6);
 
 }
 

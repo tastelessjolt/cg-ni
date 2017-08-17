@@ -4,6 +4,9 @@
 #define CI_MODELLING_MODE 0
 #define CI_INSPECTION_MODE 1
 
+// Define a helpful macro for handling offsets into buffer objects
+#define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 

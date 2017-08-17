@@ -8,6 +8,10 @@ extern GLfloat xpos;
 extern GLfloat ypos;
 extern GLfloat zpos;
 
+extern GLfloat rcol;
+extern GLfloat gcol;
+extern GLfloat bcol;
+
 extern std::vector<float> points;
 extern std::vector<float> triangles;
 
@@ -91,20 +95,22 @@ namespace csX75
     }
     else if (key == GLFW_KEY_C && (action == GLFW_PRESS)) {
       
-      for (int i = 0; i < ((int)points.size()-6); i += 3){
-        triangles.push_back(points[i]);
-        triangles.push_back(points[i+1]);
-        triangles.push_back(points[i+2]);
-        triangles.push_back(points[i+3]);
-        triangles.push_back(points[i+4]);
-        triangles.push_back(points[i+5]);
-        triangles.push_back(points[i+6]);
-        triangles.push_back(points[i+7]);
-        triangles.push_back(points[i+8]);
+      // jump by one vertex
+      for (int i = 0; i < ((int)points.size()-12); i += 6){
+        
+        for (int j = 0; j < 3 * 6; ++j){
+          triangles.push_back(points[i + j]);
+        }
+
       }
 
       points.clear();
 
+    }
+    // color handling
+    // setting current color
+    else if (key == GLFW_KEY_U && (action == GLFW_PRESS)) {
+      std::cin >> rcol >> gcol >> bcol;
     }
     else if (key == GLFW_KEY_M && (action == GLFW_PRESS)) {
       mode = CI_MODELLING_MODE;
@@ -140,8 +146,8 @@ namespace csX75
 
       std::fstream fs(filename + ".raw", std::fstream::out);
 
-      for (int i = 0; i < triangles.size()/3; ++i){
-        fs << triangles[i*3] << " " << triangles[i*3+1] << " " << triangles[i*3+2] << std::endl;
+      for (int i = 0; i < triangles.size()/6; ++i){
+        fs << triangles[i*6] << " " << triangles[i*6+1] << " " << triangles[i*6+2] << " " << triangles[i*6+3] << " " << triangles[i*6+4] << " " << triangles[i*6+5] << std::endl;
       }
 
       fs.close();
@@ -185,7 +191,10 @@ namespace csX75
         
         if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)){
 
-          if (points.size() >= 3){
+          if (points.size() >= 6){
+            points.pop_back();
+            points.pop_back();
+            points.pop_back();
             points.pop_back();
             points.pop_back();
             points.pop_back();
@@ -199,10 +208,14 @@ namespace csX75
           float x_in, y_in;
           convert_to_world(window, xclk, yclk, &x_in, &y_in);
           std::cout << "Left click: (" << x_in << "," << y_in << "," << zpos << ")" << std::endl;
+          std::cout << "Colour: (" << rcol << "," << gcol << "," << bcol << ")" << std::endl;
 
           points.push_back(x_in);
           points.push_back(y_in);
           points.push_back(zpos);
+          points.push_back(rcol);
+          points.push_back(gcol);
+          points.push_back(bcol);
         
         }
 

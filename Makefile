@@ -35,7 +35,7 @@ $(OBJ_FW): $(INCLUDES_FW) $(SRC_FW)
 $(OBJ_SU): $(INCLUDES_SU) $(SRC_SU)
 	g++ -c $(CPPFLAGS) $(SRC_SU) $(LDFLAGS) $(LIBS)
 
-$(BIN): $(OBJ_FW) $(OBJ_SU)
+$(BIN): $(OBJ_FW) $(OBJ_SU) $(SRC_MAIN)
 	g++ $(CPPFLAGS) $(SRC_MAIN) $(OBJ_FW) $(OBJ_SU) -o $(BIN) $(LDFLAGS) $(LIBS)
 
 clean:
