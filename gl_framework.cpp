@@ -113,7 +113,8 @@ namespace csX75
       mode = CI_INSPECTION_MODE;
     }
     else if (key == GLFW_KEY_R && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      int sumx = 0, sumy = 0, sumz = 0;
+      
+      GLfloat sumx = 0, sumy = 0, sumz = 0;
       for (int i = 0; i < triangles.size()/9; ++i){
         sumx += triangles[9*i];
         sumy += triangles[9*i+1];
@@ -121,13 +122,16 @@ namespace csX75
       }
 
       int p = triangles.size()/9;
-      sumx += triangles[9*p + 3] + triangles[9*p + 6];
-      sumy += triangles[9*p + 4] + triangles[9*p + 7];
-      sumz += triangles[9*p + 5] + triangles[9*p + 8];
+      sumx += triangles[9*(p-1) + 3] + triangles[9*(p-1) + 6];
+      sumy += triangles[9*(p-1) + 4] + triangles[9*(p-1) + 7];
+      sumz += triangles[9*(p-1) + 5] + triangles[9*(p-1) + 8];
 
       xpos = sumx/(p + 2.0);
       ypos = sumy/(p + 2.0);
       zpos = sumz/(p + 2.0);
+
+      // std::cout << sumx << " " << sumy << " " << sumz << " " << p << std::endl;
+      // std::cout << xpos << " " << ypos << " " << zpos << std::endl;
     }
   }
 
@@ -161,7 +165,7 @@ namespace csX75
 
           float x_in, y_in;
           convert_to_world(window, xclk, yclk, &x_in, &y_in);
-          std::cout << "Left click: (" << x_in << "," << y_in <<  ")" << std::endl;
+          std::cout << "Left click: (" << x_in << "," << y_in << "," << zpos << ")" << std::endl;
 
           points.push_back(x_in);
           points.push_back(y_in);
