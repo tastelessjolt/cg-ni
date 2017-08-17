@@ -89,7 +89,7 @@ namespace csX75
     else if (key == GLFW_KEY_X && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
       zpos += 0.05;
     }
-    else if (key == GLFW_KEY_C && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+    else if (key == GLFW_KEY_C && (action == GLFW_PRESS)) {
       
       for (int i = 0; i < ((int)points.size()-6); i += 3){
         triangles.push_back(points[i]);
@@ -106,13 +106,13 @@ namespace csX75
       points.clear();
 
     }
-    else if (key == GLFW_KEY_M && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+    else if (key == GLFW_KEY_M && (action == GLFW_PRESS)) {
       mode = CI_MODELLING_MODE;
     }
-    else if (key == GLFW_KEY_I && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+    else if (key == GLFW_KEY_I && (action == GLFW_PRESS)) {
       mode = CI_INSPECTION_MODE;
     }
-    else if (key == GLFW_KEY_R && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
+    else if (key == GLFW_KEY_R && (action == GLFW_PRESS)) {
       
       GLfloat sumx = 0, sumy = 0, sumz = 0;
       for (int i = 0; i < triangles.size()/9; ++i){
@@ -132,6 +132,39 @@ namespace csX75
 
       // std::cout << sumx << " " << sumy << " " << sumz << " " << p << std::endl;
       // std::cout << xpos << " " << ypos << " " << zpos << std::endl;
+    }
+    else if (key == GLFW_KEY_K && (action == GLFW_PRESS)) {
+      
+      std::string filename;
+      std::cin >> filename;
+
+      std::fstream fs(filename + ".raw", std::fstream::out);
+
+      for (int i = 0; i < triangles.size()/3; ++i){
+        fs << triangles[i*3] << " " << triangles[i*3+1] << " " << triangles[i*3+2] << std::endl;
+      }
+
+      fs.close();
+
+    }
+    else if (key == GLFW_KEY_L && (action == GLFW_PRESS)) {
+      
+      std::string filename;
+      std::cin >> filename;
+
+      std::fstream fs(filename, std::fstream::in);
+
+      triangles.clear();
+      points.clear();
+      
+      float tmp;
+      while(!fs.eof()){
+        fs >> tmp;
+        triangles.push_back(tmp);
+      }
+
+      fs.close();
+
     }
   }
 
