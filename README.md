@@ -1,48 +1,48 @@
 # cg-ichi
-A rudimentary modelling framework made using OpenGL
+A rudimentary modelling framework made using OpenGL  
 
 ## Controls
 
 ### Mode Switch
 
-`M` Modelling Mode
-`I` Inspection Mode
+`M` Modelling Mode  
+`I` Inspection Mode  
 
 ### Modelling Mode
 
-`Left Mouse Click` - Add a point
-`Shift + Left Mouse Click` - Remove the last added point
-`C` Close the polygon started
+`Left Mouse Click` - Add a point  
+`Shift + Left Mouse Click` - Remove the last added point  
+`C` Close the polygon started  
 
-`U` Set the color in `R G B` format in float
+`U` Set the color in `R G B` format in float in the terminal  
 
-`Z` Move drawing plane out
-`X` Move drawing plane in
+`Z` Move drawing plane out  
+`X` Move drawing plane in  
 
-`W` Camera up
-`A` Camera left
-`S` Camera down
-`D` Camera right
+`W` Camera up  
+`A` Camera left  
+`S` Camera down  
+`D` Camera right  
 
-*Rotation not available in modelling mode*
+*Rotation not available in modelling mode*  
 
-### Inspection Mode
+### Inspection Mode  
 
-`R` Move camera so that centrod of the model is at the centre of the screen
+`R` Move camera so that centrod of the model is at the centre of the screen  
 
-`Z` Camera out
-`X` Camera in
-`W` Camera up
-`A` Camera left
-`S` Camera down
-`D` Camera right
+`Z` Camera out  
+`X` Camera in  
+`W` Camera up  
+`A` Camera left  
+`S` Camera down  
+`D` Camera right  
 
-`Left` Rotate left about Y
-`Right` Rotate right about Y
-`Up` Rotate in about X
-`Down` Rotate out about X
-`PgUp` Rotate anti-clock about Z
-`PgDown` Rotate clock about Z
+`Left` Rotate left about Y  
+`Right` Rotate right about Y  
+`Up` Rotate in about X  
+`Down` Rotate out about X  
+`PgUp` Rotate anti-clock about Z  
+`PgDown` Rotate clock about Z  
 
 ### Saving/Loading Operations
 
