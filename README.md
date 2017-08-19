@@ -1,25 +1,41 @@
 # cg-ichi
 A rudimentary modelling framework made using OpenGL
 
-
 ## Controls
 
+### Mode Switch
+
 `M` Modelling Mode
+`I` Inspection Mode
+
+### Modelling Mode
 
 `Left Mouse Click` - Add a point
 `Shift + Left Mouse Click` - Remove the last added point
+`C` Close the polygon started
+
+`U` Set the color in `R G B` format in float
 
 `Z` Move drawing plane out
 `X` Move drawing plane in
+
 `W` Camera up
 `A` Camera left
 `S` Camera down
 `D` Camera right
-`C` Close the polygon started
 
-`I` Inspection Mode
+*Rotation not available in modelling mode*
 
-Navigation:
+### Inspection Mode
+
+`R` Move camera so that centrod of the model is at the centre of the screen
+
+`Z` Camera out
+`X` Camera in
+`W` Camera up
+`A` Camera left
+`S` Camera down
+`D` Camera right
 
 `Left` Rotate left about Y
 `Right` Rotate right about Y
@@ -28,20 +44,22 @@ Navigation:
 `PgUp` Rotate anti-clock about Z
 `PgDown` Rotate clock about Z
 
-`W` Camera object up
-`A` Camera object left
-`S` Camera object down
-`D` Camera object right
-`Z` Camera object out
-`X` Camera object in
-
-
-`R` Move camera so that centrod of the model is at the centre of the screen
-
+### Saving/Loading Operations
 
 `K` - Save the current model
-	File name input via terminal
+	File name input via terminal (without extension)
 
 `L` - Load a model
-	File name input via terminal
+	File name input via terminal (without extension)
 
+#### TO DO
+
+- File Open/Close Error Handling
+- Terminal Feedback/Prompts
+	- State Information
+		- Mode
+		- Position of drawing place
+		- Current drawing color
+	- Prompts
+		- File name prompts
+		- File error feedbacks

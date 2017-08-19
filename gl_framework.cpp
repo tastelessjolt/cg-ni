@@ -54,29 +54,28 @@ namespace csX75
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
       glfwSetWindowShouldClose(window, GL_TRUE);
     else if (key == GLFW_KEY_LEFT && (action == GLFW_PRESS || action == GLFW_REPEAT)){
-      yrot-=0.2;
+      yrot-=0.2*((mode == CI_INSPECTION_MODE)?1:0);
     } 
     else if (key == GLFW_KEY_RIGHT && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      yrot+=0.2;
+      yrot+=0.2*((mode == CI_INSPECTION_MODE)?1:0);
     }
     else if (key == GLFW_KEY_UP && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      xrot-=0.2;
+      xrot-=0.2*((mode == CI_INSPECTION_MODE)?1:0);
     }
     else if (key == GLFW_KEY_DOWN && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      xrot+=0.2;
+      xrot+=0.2*((mode == CI_INSPECTION_MODE)?1:0);
     }
     else if (key == GLFW_KEY_PAGE_UP && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      zrot-=0.2;
+      zrot-=0.2*((mode == CI_INSPECTION_MODE)?1:0);
     }
     else if (key == GLFW_KEY_PAGE_DOWN && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      zrot+=0.2;
+      zrot+=0.2*((mode == CI_INSPECTION_MODE)?1:0);
     }
     else if (key == GLFW_KEY_W && (action == GLFW_PRESS || action == GLFW_REPEAT)){
       ypos += 0.05;
     } 
     else if (key == GLFW_KEY_A && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      xpos -= 0.05;
-      
+      xpos -= 0.05; 
     }
     else if (key == GLFW_KEY_S && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
       ypos -= 0.05;
@@ -121,16 +120,16 @@ namespace csX75
     else if (key == GLFW_KEY_R && (action == GLFW_PRESS)) {
       
       GLfloat sumx = 0, sumy = 0, sumz = 0;
-      for (int i = 0; i < triangles.size()/9; ++i){
-        sumx += triangles[9*i];
-        sumy += triangles[9*i+1];
-        sumz += triangles[9*i+2];
+      for (int i = 0; i < triangles.size()/18; ++i){
+        sumx += triangles[18*i];
+        sumy += triangles[18*i+1];
+        sumz += triangles[18*i+2];
       }
 
-      int p = triangles.size()/9;
-      sumx += triangles[9*(p-1) + 3] + triangles[9*(p-1) + 6];
-      sumy += triangles[9*(p-1) + 4] + triangles[9*(p-1) + 7];
-      sumz += triangles[9*(p-1) + 5] + triangles[9*(p-1) + 8];
+      int p = triangles.size()/18;
+      sumx += triangles[18*(p-1) + 0 + 6] + triangles[18*(p-1) + 0 + 12];
+      sumy += triangles[18*(p-1) + 1 + 6] + triangles[18*(p-1) + 1 + 12];
+      sumz += triangles[18*(p-1) + 2 + 6] + triangles[18*(p-1) + 2 + 12];
 
       xpos = sumx/(p + 2.0);
       ypos = sumy/(p + 2.0);
@@ -158,7 +157,7 @@ namespace csX75
       std::string filename;
       std::cin >> filename;
 
-      std::fstream fs(filename, std::fstream::in);
+      std::fstream fs(filename + ".raw", std::fstream::in);
 
       triangles.clear();
       points.clear();
