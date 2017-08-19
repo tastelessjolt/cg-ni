@@ -62,4 +62,4 @@ A rudimentary modelling framework made using OpenGL
 		- Current drawing color
 	- Prompts
 		- File name prompts
-		- File error feedbacks
+		- ~~File error feedbacks~~

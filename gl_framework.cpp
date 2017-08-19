@@ -1,4 +1,6 @@
 #include "gl_framework.hpp"
+#include <unistd.h>
+#include <sys/stat.h>
 
 extern GLfloat xrot;
 extern GLfloat yrot;
@@ -156,8 +158,15 @@ namespace csX75
       
       std::string filename;
       std::cin >> filename;
+      filename+=".raw";
 
-      std::fstream fs(filename + ".raw", std::fstream::in);
+      struct stat buffer;
+      if (stat(filename.c_str(), &buffer) != 0){
+        std::cerr << "Error: File not found" << std::endl;
+        return;
+      }
+
+      std::fstream fs(filename, std::fstream::in);
 
       triangles.clear();
       points.clear();
