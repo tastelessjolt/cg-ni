@@ -111,6 +111,7 @@ namespace csX75
     // color handling
     // setting current color
     else if (key == GLFW_KEY_U && (action == GLFW_PRESS)) {
+      std::cout << "Enter color in the `R G B` format in float: ";
       std::cin >> rcol >> gcol >> bcol;
     }
     else if (key == GLFW_KEY_M && (action == GLFW_PRESS)) {
@@ -143,7 +144,7 @@ namespace csX75
     else if (key == GLFW_KEY_K && (action == GLFW_PRESS)) {
       
       std::string filename;
-      std::cin >> filename;
+      std::cout << "Enter the name of the file (without extension): "; std::cin >> filename;
 
       std::fstream fs(filename + ".raw", std::fstream::out);
 
@@ -157,7 +158,7 @@ namespace csX75
     else if (key == GLFW_KEY_L && (action == GLFW_PRESS)) {
       
       std::string filename;
-      std::cin >> filename;
+      std::cout << "Enter the name of the file to be loaded (without extension): "; std::cin >> filename;
       filename+=".raw";
 
       struct stat buffer;
@@ -215,8 +216,8 @@ namespace csX75
 
           float x_in, y_in;
           convert_to_world(window, xclk, yclk, &x_in, &y_in);
-          std::cout << "Left click: (" << x_in << "," << y_in << "," << zpos << ")" << std::endl;
-          std::cout << "Colour: (" << rcol << "," << gcol << "," << bcol << ")" << std::endl;
+          std::cout << "Point at click: (" << x_in << "," << y_in << "," << zpos << ") ";
+          std::cout << "(" << rcol << "," << gcol << "," << bcol << ")" << std::endl;
 
           points.push_back(x_in);
           points.push_back(y_in);

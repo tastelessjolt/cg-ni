@@ -35,6 +35,46 @@ GLfloat rcol = 0.5f;
 GLfloat gcol = 0.5f;
 GLfloat bcol = 0.5f;
 
+int mode_state;
+bool mode_printed = false;
+
+GLfloat zpos_state;
+bool zpos_printed = false;
+
+GLfloat rcol_state, gcol_state, bcol_state;
+bool col_printed = false;
+
+void printState()
+{
+  if ( mode_state != mode ){
+    mode_printed = false;
+    mode_state = mode;
+  }
+  if ( zpos_state != zpos ){
+    zpos_printed = false;
+    zpos_state = zpos;
+  }
+  if ( rcol_state != rcol or gcol_state != gcol or bcol_state != bcol ){
+    col_printed = false;
+    rcol_state = rcol;
+    gcol_state = gcol;
+    bcol_state = bcol;
+  }
+    
+  if (!mode_printed){
+    std::cout << "Mode: " << ((mode == CI_MODELLING_MODE)?"Modelling":"Inspection") << std::endl;
+    mode_printed = true;
+  }
+  if (!zpos_printed){
+    std::cout << "Drawing plane at: " << zpos << std::endl;
+    zpos_printed = true;
+  }
+  if (!col_printed){
+    std::cout << "Current color: " << "(" << rcol << ", " << gcol << ", " << bcol << ")" << std::endl;
+    col_printed = true;
+  }
+}
+
 void initShadersGL(void)
 {
   std::string vertex_shader_file("simple_vs.glsl");
@@ -201,6 +241,8 @@ int main(int argc, char** argv)
   // Loop until the user closes the window
   while (glfwWindowShouldClose(window) == 0)
     {
+      printState();
+
       // Render here
       renderGL();
 
