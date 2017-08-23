@@ -19,13 +19,15 @@ extern std::vector<float> triangles;
 
 extern int mode;
 
+std::vector<float> last_tr;
+
 namespace csX75
 {
   //! Initialize GL State
   void initGL(void)
   {
     //Set framebuffer clear color
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     //Set depth buffer furthest depth
     glClearDepth(1.0);
     //Set depth test to less-than
@@ -88,26 +90,45 @@ namespace csX75
       
     }
     else if (key == GLFW_KEY_Z && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      zpos -= 0.05;
-      
+
+      if ((glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS)){
+        if (triangles.size() >= 3 * 6){
+          // popping the last points added for a triangle
+          for (int i = 0; i < 3 * 6; ++i){
+            last_tr.push_back(triangles.back());
+            triangles.pop_back();
+          }
+        }
+      }else{
+        // move z plane
+        zpos -= 0.05; 
+      }      
+    }
+    else if (key == GLFW_KEY_Y && (action == GLFW_PRESS)) {
+
+      if ((glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_RIGHT_CONTROL) == GLFW_PRESS)){
+        if (last_tr.size() >= 3 * 6) { 
+          for (int i = 0; i < 3 * 6; ++i){
+            triangles.push_back(last_tr.back());
+            last_tr.pop_back();
+          }
+        }
+      } 
     }
     else if (key == GLFW_KEY_X && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
       zpos += 0.05;
     }
     else if (key == GLFW_KEY_C && (action == GLFW_PRESS)) {
       
-      // jump by one vertex
       for (int i = 0; i < ((int)points.size()-12); i += 6){
-        
         for (int j = 0; j < 3 * 6; ++j){
           triangles.push_back(points[i + j]);
         }
-
       }
 
       points.clear();
-
     }
+
     // color handling
     // setting current color
     else if (key == GLFW_KEY_U && (action == GLFW_PRESS)) {

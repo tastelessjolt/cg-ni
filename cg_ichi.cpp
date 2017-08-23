@@ -31,9 +31,9 @@ GLfloat xpos = 0;
 GLfloat ypos = 0;
 GLfloat zpos = 0;
 
-GLfloat rcol = 0.5f;
-GLfloat gcol = 0.5f;
-GLfloat bcol = 0.5f;
+GLfloat rcol = 0.0f;
+GLfloat gcol = 0.0f;
+GLfloat bcol = 0.0f;
 
 int mode_state;
 bool mode_printed = false;
