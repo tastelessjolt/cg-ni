@@ -229,7 +229,7 @@ int main(int argc, char** argv)
   glfwSetFramebufferSizeCallback(window, csX75::framebuffer_size_callback);
 
   // Ensure we can capture the escape key being pressed below
-  glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+  // glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
   glfwSetMouseButtonCallback(window, csX75::mouse_button_callback);
 

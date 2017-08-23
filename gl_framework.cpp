@@ -194,9 +194,16 @@ namespace csX75
       points.clear();
       
       float tmp;
+      std::string line;
       while(!fs.eof()){
-        fs >> tmp;
-        triangles.push_back(tmp);
+        std::getline(fs, line);
+        if (line != ""){
+          std::stringstream iss(line);
+          for(int i = 0; i < 6; i++){
+            iss >> tmp;
+            triangles.push_back(tmp);
+          }
+        }
       }
 
       fs.close();
