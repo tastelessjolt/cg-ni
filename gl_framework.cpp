@@ -51,13 +51,37 @@ namespace csX75
     //!Resize the viewport to fit the window size - draw to entire window
     glViewport(0, 0, width, height);
   }
-  
+
+  //!save the model to file 
+  void save_to_file() {
+    std::string filename;
+    std::cout << "Enter the name of the file (without extension): "; std::cin >> filename;
+
+    std::fstream fs(filename + ".raw", std::fstream::out);
+
+    for (int i = 0; i < triangles.size()/6; ++i){
+      fs << triangles[i*6] << " " << triangles[i*6+1] << " " << triangles[i*6+2] << " " << triangles[i*6+3] << " " << triangles[i*6+4] << " " << triangles[i*6+5] << std::endl;
+    }
+
+    fs.close();
+  }
+
+  void quit (GLFWwindow *window) {
+    char c;
+    std::cout << "Do you want to save your model? (y/n)" << std:: endl;
+    std::cin >> c;
+    if (! (c == 'n' || c == 'N') ){
+      save_to_file();
+    }
+    glfwSetWindowShouldClose(window, GL_TRUE);
+  }
+
   //!GLFW keyboard callback
   void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
   {
     //!Close the window if the ESC key was pressed
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-      glfwSetWindowShouldClose(window, GL_TRUE);
+      quit(window);
     else if (key == GLFW_KEY_LEFT && (action == GLFW_PRESS || action == GLFW_REPEAT)){
       yrot-=0.2*((mode == CI_INSPECTION_MODE)?1:0);
     } 
@@ -149,21 +173,9 @@ namespace csX75
       zpos = pos[2];
     }
     else if (key == GLFW_KEY_K && (action == GLFW_PRESS)) {
-      
-      std::string filename;
-      std::cout << "Enter the name of the file (without extension): "; std::cin >> filename;
-
-      std::fstream fs(filename + ".raw", std::fstream::out);
-
-      for (int i = 0; i < triangles.size()/6; ++i){
-        fs << triangles[i*6] << " " << triangles[i*6+1] << " " << triangles[i*6+2] << " " << triangles[i*6+3] << " " << triangles[i*6+4] << " " << triangles[i*6+5] << std::endl;
-      }
-
-      fs.close();
-
+      save_to_file();
     }
     else if (key == GLFW_KEY_L && (action == GLFW_PRESS)) {
-      
       std::string filename;
       std::cout << "Enter the name of the file to be loaded (without extension): "; std::cin >> filename;
       filename+=".raw";
@@ -193,7 +205,9 @@ namespace csX75
       }
 
       fs.close();
-
+    }
+    else if (key == GLFW_KEY_Q && (action == GLFW_PRESS)) {
+      quit(window);
     }
   }
 
@@ -215,6 +229,9 @@ namespace csX75
         if ((glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS) || (glfwGetKey(window, GLFW_KEY_RIGHT_SHIFT) == GLFW_PRESS)){
 
           if (points.size() >= 6){
+            int len = points.size();
+            std::cout << "Removed point (" << points[len - 6] << ", " << points[len - 5] << ", " << points[len - 4] << ") (" \
+              << points[len - 3] << ", " << points[len - 2] << ", " << points[len - 1] << ")" << std::endl;  
             points.pop_back();
             points.pop_back();
             points.pop_back();
