@@ -123,6 +123,7 @@ namespace csX75
             last_tr.push_back(triangles.back());
             triangles.pop_back();
           }
+          std::cout << "Cleared the last drawn triangle" << std::endl;
         }
       }else{
         // move z plane
@@ -137,6 +138,7 @@ namespace csX75
             triangles.push_back(last_tr.back());
             last_tr.pop_back();
           }
+          std::cout << "Re-drew the last cleared triangle" << std::endl;
         }
       } 
     }

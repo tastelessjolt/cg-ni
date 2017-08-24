@@ -3,3 +3,6 @@ cg_ichi
 *.raw
 cg_ichi.dSYM/
 cg_ichi.dSYM/*
+src/
+src/*
+index.html

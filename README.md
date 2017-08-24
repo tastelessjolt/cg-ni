@@ -1,12 +1,17 @@
 # cg-ichi
 A rudimentary modelling framework made using OpenGL  
 
+## Link to report
+[here](file://./index.html)
+
 ## Controls
 
 ### Mode Switch
 
 `M` Modelling Mode  
 `I` Inspection Mode  
+
+`Esc` or `Q` Quit Program  
 
 ### Modelling Mode
 
@@ -57,12 +62,12 @@ A rudimentary modelling framework made using OpenGL
 
 #### TO DO
 
-- File Open/Close Error Handling
-- Terminal Feedback/Prompts
-	- State Information
-		- Mode
-		- Position of drawing place
-		- Current drawing color
-	- Prompts
-		- File name prompts
+- ~~File Open/Close Error Handling~~
+- ~~Terminal Feedback/Prompts~~
+	- ~~State Information~~
+		- ~~Mode~~
+		- ~~Position of drawing place~~
+		- ~~Current drawing color~~
+	- ~~Prompts~~
+		- ~~File name prompts~~
 		- ~~File error feedbacks~~
