@@ -18,6 +18,7 @@ extern std::vector<float> points;
 extern std::vector<float> triangles;
 
 extern int mode;
+extern glm::vec3 getCentroid();
 
 std::vector<float> last_tr;
 
@@ -142,25 +143,10 @@ namespace csX75
       mode = CI_INSPECTION_MODE;
     }
     else if (key == GLFW_KEY_R && (action == GLFW_PRESS)) {
-      
-      GLfloat sumx = 0, sumy = 0, sumz = 0;
-      for (int i = 0; i < triangles.size()/18; ++i){
-        sumx += triangles[18*i];
-        sumy += triangles[18*i+1];
-        sumz += triangles[18*i+2];
-      }
-
-      int p = triangles.size()/18;
-      sumx += triangles[18*(p-1) + 0 + 6] + triangles[18*(p-1) + 0 + 12];
-      sumy += triangles[18*(p-1) + 1 + 6] + triangles[18*(p-1) + 1 + 12];
-      sumz += triangles[18*(p-1) + 2 + 6] + triangles[18*(p-1) + 2 + 12];
-
-      xpos = sumx/(p + 2.0);
-      ypos = sumy/(p + 2.0);
-      zpos = sumz/(p + 2.0);
-
-      // std::cout << sumx << " " << sumy << " " << sumz << " " << p << std::endl;
-      // std::cout << xpos << " " << ypos << " " << zpos << std::endl;
+      glm::vec3 pos = getCentroid();
+      xpos = pos[0];
+      ypos = pos[1];
+      zpos = pos[2];
     }
     else if (key == GLFW_KEY_K && (action == GLFW_PRESS)) {
       

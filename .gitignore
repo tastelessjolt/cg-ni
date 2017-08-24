@@ -1,3 +1,5 @@
 cg_ichi
 *.o
 *.raw
+cg_ichi.dSYM/
+cg_ichi.dSYM/*

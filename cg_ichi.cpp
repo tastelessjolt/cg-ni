@@ -21,6 +21,8 @@ glm::mat4 rotation_matrix;
 glm::mat4 ortho_matrix;
 glm::mat4 modelview_matrix;
 glm::mat4 look_at;
+glm::mat4 translate;
+glm::mat4 translate_inv;
 GLuint uModelViewMatrix;
 
 GLfloat xrot = 0;
@@ -43,6 +45,22 @@ bool zpos_printed = false;
 
 GLfloat rcol_state, gcol_state, bcol_state;
 bool col_printed = false;
+
+glm::vec3 getCentroid () {
+  GLfloat sumx = 0, sumy = 0, sumz = 0;
+  for (int i = 0; i < triangles.size()/18; ++i){
+    sumx += triangles[18*i];
+    sumy += triangles[18*i+1];
+    sumz += triangles[18*i+2];
+  }
+
+  int p = triangles.size()/18;
+  sumx += triangles[18*(p-1) + 0 + 6] + triangles[18*(p-1) + 0 + 12];
+  sumy += triangles[18*(p-1) + 1 + 6] + triangles[18*(p-1) + 1 + 12];
+  sumz += triangles[18*(p-1) + 2 + 6] + triangles[18*(p-1) + 2 + 12];
+
+  return glm::vec3(sumx/(p + 2.0), sumy/(p + 2.0), sumz/(p + 2.0));
+}
 
 void printState()
 {
@@ -126,19 +144,19 @@ void renderGL(void)
   
   if (mode == CI_MODELLING_MODE){
     look_at = glm::lookAt(glm::vec3(xpos, ypos, -2.0), glm::vec3(xpos, ypos, 1.0), glm::vec3(0.0, 1.0, 0.0));
-  } else {
+  } 
+  else {
+    glm::vec3 centroid = getCentroid();
 
-    // glm::mat4 trans = glm::translate(glm::mat4(1.0f), glm::vec3(xpos, ypos, 1.0));
-    
-    // glm::mat4 transi = glm::translate(glm::mat4(1.0f), glm::vec3(-xpos, -ypos, -1.0));
+    translate = glm::translate(glm::mat4(1.0f), -centroid);
+    translate_inv = glm::translate(glm::mat4(1.0f), centroid);
 
     rotation_matrix = glm::rotate(glm::mat4(1.0f), xrot, glm::vec3(1.0f,0.0f,0.0f));
     rotation_matrix = glm::rotate(rotation_matrix, yrot, glm::vec3(0.0f,1.0f,0.0f));
     rotation_matrix = glm::rotate(rotation_matrix, zrot, glm::vec3(0.0f,0.0f,1.0f));
+    
     look_at = glm::lookAt(glm::vec3(xpos, ypos, -2.0), glm::vec3(xpos, ypos, 1.0), glm::vec3(0.0, 1.0, 0.0));
-
-    // look_at = (transi * rotation_matrix * trans * look_at);
-    look_at = (look_at * rotation_matrix);
+    look_at = (look_at * (translate_inv * rotation_matrix * translate));
   }
   
   ortho_matrix = glm::ortho(-1.0, 1.0, -1.0, 1.0, -10.0, 10.0);
