@@ -9,12 +9,12 @@ LIBS=$(OPENGLLIB) $(GLEWLIB) $(GLFWLIB)
 else
 # check for Linux and run other commands
 OPENGLLIB= -lGL
-GLFWLIB = -lglfw3
+GLFWLIB = -lglfw
 LIBS=$(OPENGLLIB) $(GLEWLIB) $(GLFWLIB) -lX11 -lXi -lXrandr -lXxf86vm -lXinerama -lXcursor -lrt -lm -pthread -ldl
 endif
 
 LDFLAGS=-L/usr/local/lib 
-CPPFLAGS=-I/usr/local/include -g
+CPPFLAGS=-I/usr/local/include -std=c++11
 
 BIN=cg_ichi
 SRC_MAIN=cg_ichi.cpp 
