@@ -1,0 +1,22 @@
+#Model file details followed by modelling transformations
+lp_full.raw
+0.2 0.2 0.2
+0 0 0
+0.64 0.36 1
+mj_full.raw
+0.2 0.2 0.2
+0 0 0
+0.64 0.36 1
+fs_full.raw
+0.2 0.2 0.2
+0 0 0
+0.64 0.36 1
+#VCS Setup
+#In World coordinates specify
+0 0 0
+0 0 1
+0 1 0
+#Frustum Size
+#In View coodinates speficy, wrt the eye
+1 1 1 1
+2 8

@@ -14,10 +14,10 @@ LIBS=$(OPENGLLIB) $(GLEWLIB) $(GLFWLIB) -lX11 -lXi -lXrandr -lXxf86vm -lXinerama
 endif
 
 LDFLAGS=-L/usr/local/lib 
-CPPFLAGS=-I/usr/local/include -std=c++11
+CPPFLAGS=-I/usr/local/include -std=c++11 -g
 
-BIN=cg_ichi
-SRC_MAIN=cg_ichi.cpp 
+BIN=cg_ni
+SRC_MAIN=cg_ni.cpp 
 
 INCLUDES_FW=gl_framework.hpp
 SRC_FW=gl_framework.cpp 

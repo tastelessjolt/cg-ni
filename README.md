@@ -1,4 +1,4 @@
-# cg-ichi
+# cg-ni
 A rudimentary modelling framework made using OpenGL  
 
 ## Link to report

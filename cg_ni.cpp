@@ -12,7 +12,7 @@
 std::vector<float> points;
 std::vector<float> triangles;
 
-int mode = CI_MODELLING_MODE;
+int mode = CI_INSPECTION_MODE;
 
 GLuint shaderProgram;
 GLuint vbo_points, vbo_triangles, vao_points, vao_triangles;

@@ -66,6 +66,37 @@ namespace csX75
     fs.close();
   }
 
+   std::vector<GLfloat> readrawfile (std::string filename) {
+    struct stat buffer;
+    if (stat(filename.c_str(), &buffer) != 0){
+      std::cerr << "Error: File not found" << std::endl;
+      std::vector<GLfloat> v;
+      return v;
+    }
+
+    std::fstream fs(filename, std::fstream::in);
+
+    std::vector<GLfloat> triangles;
+    
+    float tmp;
+    std::string line;
+    while(!fs.eof()){
+      std::getline(fs, line);
+      if (line != ""){
+        std::stringstream iss(line);
+        for(int i = 0; i < 6; i++){
+          iss >> tmp;
+          triangles.push_back(tmp);
+        }
+      }
+    }
+
+    fs.close();
+
+    return triangles;
+  }
+
+
   void quit (GLFWwindow *window) {
     char c;
     std::cout << "Do you want to save your model? (y/n)" << std:: endl;
@@ -208,10 +239,139 @@ namespace csX75
 
       fs.close();
     }
+    else if (key == GLFW_KEY_F && (action == GLFW_PRESS)) {
+      std::string scenefilename;
+      std::cout << "Enter the name of the scene file to be loaded (without extension scn): "; std::cin >> scenefilename;
+      scenefilename+=".scn";
+
+      struct stat buffer;
+      if (stat(scenefilename.c_str(), &buffer) != 0){
+        std::cerr << "Error: File not found" << std::endl;
+        return;
+      }
+
+      std::fstream fs(scenefilename, std::fstream::in);
+
+      std::vector<GLfloat> scenetriangles[3];
+      std::vector<GLfloat> scaleParams[3];
+      std::vector<GLfloat> rotationParams[3];
+      std::vector<GLfloat> translationParams[3];
+
+      GLfloat eye[3];
+      GLfloat lookat[3];
+      GLfloat up[3];
+
+      GLfloat frustum[6];
+
+      triangles.clear();
+      points.clear();
+      
+      int numfile = 3;
+      int nfile = 0;
+      int nline = 0;
+
+      float tmp;
+      std::string line;
+      while(!fs.eof()){
+        std::getline(fs, line);
+        if (line != "" || line[0] != '#'){
+          if (nfile < numfile) {
+            if (nline == 0) {
+              scenetriangles[nfile] = readrawfile(line);
+              nline = 1;
+            }
+            else {
+              std::stringstream iss(line);
+              for(int i = 0; i < 3; i++){
+                iss >> tmp;
+                switch (nline) {
+                  case 1:
+                    scaleParams[nfile].push_back(tmp);
+                    break;
+                  case 2:
+                    rotationParams[nfile].push_back(tmp);
+                    break;
+                  case 3:
+                    translationParams[nfile].push_back(tmp);
+                    break;
+                }
+              }
+              nline ++;
+            }
+
+            if (nline == 3) { 
+              nfile ++;
+              nline = 0;
+            }
+          }
+          else {
+            std::stringstream iss(line);
+            switch (nline) {
+              case 0:
+                for(int i = 0; i < 3; i++){
+                  iss >> eye[i];
+                }
+                break;
+              case 1:
+                for(int i = 0; i < 3; i++){
+                  iss >> lookat[i];
+                }
+                break;
+              case 2:
+                for(int i = 0; i < 3; i++){
+                  iss >> up[i];
+                }
+                break;
+              case 3:
+                for(int i = 0; i < 3; i++){
+                  iss >> frustum[i];
+                }
+                break;
+              case 4:
+                for(int i = 3; i < 5; i++){
+                  iss >> frustum[i];
+                }
+                break;
+            }
+            nline ++;
+          }
+        }
+      }
+      fs.close();
+      
+      for (int i = 0; i != numfile; i++ ) {
+        for (float coord : scenetriangles[i]) {
+          std::cout << coord << " ";
+        }
+        std::cout << std::endl;
+      }
+
+      for (int i = 0; i != 3; i++) {
+        std::cout << eye[i] << " ";
+      }
+      std::cout << std::endl;
+
+      for (int i = 0; i != 3; i++) {
+        std::cout << lookat[i] << " ";
+      }
+      std::cout << std::endl;
+      
+      for (int i = 0; i != 3; i++) {
+        std::cout << up[i] << " ";
+      }
+      std::cout << std::endl;
+      
+      for (int i = 0; i != 5; i++) {
+        std::cout << frustum[i] << " ";
+      }
+      std::cout << std::endl;
+    }
     else if (key == GLFW_KEY_Q && (action == GLFW_PRESS)) {
       quit(window);
     }
+
   }
+
 
   void convert_to_world(GLFWwindow* window, GLint x, GLint y, GLfloat* xf, GLfloat* yf){
     
