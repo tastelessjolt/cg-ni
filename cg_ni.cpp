@@ -47,19 +47,22 @@ GLfloat rcol_state, gcol_state, bcol_state;
 bool col_printed = false;
 
 glm::vec3 getCentroid () {
-  GLfloat sumx = 0, sumy = 0, sumz = 0;
-  for (int i = 0; i < triangles.size()/18; ++i){
-    sumx += triangles[18*i];
-    sumy += triangles[18*i+1];
-    sumz += triangles[18*i+2];
+  if (triangles.size() > 18) {   
+    GLfloat sumx = 0, sumy = 0, sumz = 0;
+    for (int i = 0; i < triangles.size()/18; ++i){
+      sumx += triangles[18*i];
+      sumy += triangles[18*i+1];
+      sumz += triangles[18*i+2];
+    }
+
+    int p = triangles.size()/18;
+    sumx += triangles[18*(p-1) + 0 + 6] + triangles[18*(p-1) + 0 + 12];
+    sumy += triangles[18*(p-1) + 1 + 6] + triangles[18*(p-1) + 1 + 12];
+    sumz += triangles[18*(p-1) + 2 + 6] + triangles[18*(p-1) + 2 + 12];
+
+    return glm::vec3(sumx/(p + 2.0), sumy/(p + 2.0), sumz/(p + 2.0));
   }
-
-  int p = triangles.size()/18;
-  sumx += triangles[18*(p-1) + 0 + 6] + triangles[18*(p-1) + 0 + 12];
-  sumy += triangles[18*(p-1) + 1 + 6] + triangles[18*(p-1) + 1 + 12];
-  sumz += triangles[18*(p-1) + 2 + 6] + triangles[18*(p-1) + 2 + 12];
-
-  return glm::vec3(sumx/(p + 2.0), sumy/(p + 2.0), sumz/(p + 2.0));
+  return glm::vec3(0, 0, 0);
 }
 
 void printState()

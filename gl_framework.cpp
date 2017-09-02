@@ -274,11 +274,12 @@ namespace csX75
       std::string line;
       while(!fs.eof()){
         std::getline(fs, line);
-        if (line != "" || line[0] != '#'){
+        std::cout << "nline: " << nline << std::endl;
+        if (line != "" && line[0] != '#'){
           if (nfile < numfile) {
             if (nline == 0) {
+              std::cout << line << std::endl;
               scenetriangles[nfile] = readrawfile(line);
-              nline = 1;
             }
             else {
               std::stringstream iss(line);
@@ -296,10 +297,10 @@ namespace csX75
                     break;
                 }
               }
-              nline ++;
             }
+            nline ++;
 
-            if (nline == 3) { 
+            if (nline == 4) { 
               nfile ++;
               nline = 0;
             }
@@ -339,32 +340,34 @@ namespace csX75
       }
       fs.close();
       
-      for (int i = 0; i != numfile; i++ ) {
-        for (float coord : scenetriangles[i]) {
-          std::cout << coord << " ";
-        }
-        std::cout << std::endl;
-      }
+      // for (int i = 0; i != numfile; i++ ) {
+      //   for (float coord : scenetriangles[i]) {
+      //     std::cout << coord << " ";
+      //   }
+      //   std::cout << std::endl;
+      //   std::cout << std::endl;
+      //   std::cout << std::endl;
+      // }
 
-      for (int i = 0; i != 3; i++) {
-        std::cout << eye[i] << " ";
-      }
-      std::cout << std::endl;
+      // for (int i = 0; i != 3; i++) {
+      //   std::cout << eye[i] << " ";
+      // }
+      // std::cout << std::endl;
 
-      for (int i = 0; i != 3; i++) {
-        std::cout << lookat[i] << " ";
-      }
-      std::cout << std::endl;
+      // for (int i = 0; i != 3; i++) {
+      //   std::cout << lookat[i] << " ";
+      // }
+      // std::cout << std::endl;
       
-      for (int i = 0; i != 3; i++) {
-        std::cout << up[i] << " ";
-      }
-      std::cout << std::endl;
+      // for (int i = 0; i != 3; i++) {
+      //   std::cout << up[i] << " ";
+      // }
+      // std::cout << std::endl;
       
-      for (int i = 0; i != 5; i++) {
-        std::cout << frustum[i] << " ";
-      }
-      std::cout << std::endl;
+      // for (int i = 0; i != 5; i++) {
+      //   std::cout << frustum[i] << " ";
+      // }
+      // std::cout << std::endl;
     }
     else if (key == GLFW_KEY_Q && (action == GLFW_PRESS)) {
       quit(window);
