@@ -162,12 +162,12 @@ namespace csX75
               }
               break;
             case 3:
-              for(int i = 0; i < 3; i++){
+              for(int i = 0; i < 4; i++){
                 iss >> frustum[i];
               }
               break;
             case 4:
-              for(int i = 3; i < 5; i++){
+              for(int i = 4; i < 6; i++){
                 iss >> frustum[i];
               }
               break;

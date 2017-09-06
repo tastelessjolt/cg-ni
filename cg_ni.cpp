@@ -12,6 +12,7 @@
 GLuint shaderProgram;
 
 GLuint vao;
+GLuint frame;
 GLuint * vbo_vec;
 GLuint vp, vcol;
 
@@ -29,7 +30,7 @@ GLfloat frustum[6];
 glm::mat4 rotation_matrix;
 glm::mat4 ortho_matrix;
 glm::mat4 modelview_matrix;
-glm::mat4 look_at;
+glm::mat4 look_at, look_at_inv;
 
 glm::mat4 translate;
 
@@ -86,6 +87,8 @@ void initVertexBufferGL(void)
   vbo_vec = new GLuint[N_OBJECTS];
   glGenBuffers (N_OBJECTS, vbo_vec);
 
+  glGenBuffers (1, &frame);
+
   //Ask GL for a Vertex Attribute Object (vao)
   glGenVertexArrays (1, &vao);
 
@@ -97,12 +100,152 @@ void initVertexBufferGL(void)
   glPointSize(5.0f);
 }
 
+void pushPoint(std::vector<GLfloat> &frame_lines, GLfloat x, GLfloat y, GLfloat z) {
+  frame_lines.push_back(x);
+  frame_lines.push_back(y);
+  frame_lines.push_back(z);
+}
+
+void createFrameLines(std::vector<GLfloat> &frame_lines, GLfloat L, GLfloat R, GLfloat T, GLfloat B, GLfloat N, GLfloat F) { 
+  // Eye to NEAR
+  pushPoint(frame_lines, 0.0, 0.0, 0.0);
+  pushPoint(frame_lines, 1.0, 0.0, 0.0);
+  pushPoint(frame_lines, R, T, -N);
+  pushPoint(frame_lines, 1.0, 0.0, 0.0);
+
+
+  pushPoint(frame_lines, 0.0, 0.0, 0.0);
+  pushPoint(frame_lines, 1.0, 0.0, 0.0);
+  pushPoint(frame_lines, -L, T, -N);
+  pushPoint(frame_lines, 1.0, 0.0, 0.0);
+
+
+  pushPoint(frame_lines, 0.0, 0.0, 0.0);
+  pushPoint(frame_lines, 1.0, 0.0, 0.0);
+  pushPoint(frame_lines, R, -B, -N);
+  pushPoint(frame_lines, 1.0, 0.0, 0.0);
+
+
+  pushPoint(frame_lines, 0.0, 0.0, 0.0);
+  pushPoint(frame_lines, 1.0, 0.0, 0.0);
+  pushPoint(frame_lines, -L, -B, -N);
+  pushPoint(frame_lines, 1.0, 0.0, 0.0);
+
+
+  // NEAR to FAR 
+  pushPoint(frame_lines, R * F/N, T * F/N, -F);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+  pushPoint(frame_lines, R, T, -N);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+
+
+  pushPoint(frame_lines, -L * F/N, T * F/N, -F);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+  pushPoint(frame_lines, -L, T, -N);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+
+
+  pushPoint(frame_lines, R * F/N, -B * F/N, -F);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+  pushPoint(frame_lines, R, -B, -N);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+
+
+  pushPoint(frame_lines, -L * F/N, -B * F/N, -F);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+  pushPoint(frame_lines, -L, -B, -N);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+
+
+  // NEAR Plane
+  pushPoint(frame_lines, -L, T, -N);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+  pushPoint(frame_lines, R, T, -N);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+
+
+  pushPoint(frame_lines, R, T, -N);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+  pushPoint(frame_lines, R, -B, -N);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+
+
+  pushPoint(frame_lines, R, -B, -N);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+  pushPoint(frame_lines, -L, -B, -N);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+
+
+  pushPoint(frame_lines, -L, -B, -N);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+  pushPoint(frame_lines, -L, T, -N);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+
+
+  // FAR Plane
+  pushPoint(frame_lines, -L * F/N, T * F/N, -F);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+  pushPoint(frame_lines, R * F/N, T * F/N, -F);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+
+
+  pushPoint(frame_lines, R * F/N, T * F/N, -F);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+  pushPoint(frame_lines, R * F/N, -B * F/N, -F);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+
+
+  pushPoint(frame_lines, R * F/N, -B * F/N, -F);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+  pushPoint(frame_lines, -L * F/N, -B * F/N, -F);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+
+
+  pushPoint(frame_lines, -L * F/N, -B * F/N, -F);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+  pushPoint(frame_lines, -L * F/N, T * F/N, -F);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+
+
+}
+
+
 void renderGL(void)
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glUseProgram(shaderProgram);
-  
+
   glm::mat4 sceneTranform = glm::ortho(-2.0, 2.0, -2.0, 2.0, -10.0, 10.0);
+  
+  
+  // Lines / Projectors 
+  look_at = glm::lookAt(glm::vec3(eye[0], eye[1], eye[2]), glm::vec3(lookat[0], lookat[1], lookat[2]), glm::vec3(up[0], up[1], up[2]));
+  look_at_inv = glm::inverse(look_at);
+
+  std::vector<GLfloat> frame_lines;
+  createFrameLines(frame_lines, frustum[0], frustum[1], frustum[2], frustum[3], frustum[4], frustum[5]);
+
+  modelview_matrix = sceneTranform * look_at_inv;
+
+  // Make shader variable mappings 
+  glUniformMatrix4fv(uModelViewMatrix, 1, GL_FALSE, glm::value_ptr(modelview_matrix));
+
+  // Bind Buffer object
+  glBindBuffer (GL_ARRAY_BUFFER, frame);
+  glBufferData (GL_ARRAY_BUFFER, frame_lines.size() * sizeof (float), &(frame_lines[0]), GL_DYNAMIC_DRAW);
+  // Bind Array object
+  glBindVertexArray (vao);
+
+  glEnableVertexAttribArray (vp);
+  glEnableVertexAttribArray (vcol);
+
+  glVertexAttribPointer (vp, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), NULL);
+  glVertexAttribPointer (vcol, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(3 * sizeof(float)));
+
+  // Call glDraw
+  glDrawArrays(GL_LINES, 0, frame_lines.size()/6);
+
+
 
   // Generate scene matrix 
   for (int i = 0; i != N_OBJECTS; i++) {
