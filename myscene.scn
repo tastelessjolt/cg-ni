@@ -1,16 +1,16 @@
 #Model file details followed by modelling transformations
 lp_full.raw
-0.2 0.2 0.2
+0.5 0.5 0.5
 0 0 0
-0.64 0.36 1
+1 0 0
 mj_full.raw
-0.2 0.2 0.2
+0.5 0.5 0.5
 0 0 0
-0.64 0.36 1
+-1 0 0
 fs_full.raw
-0.2 0.2 0.2
+0.5 0.5 0.5
 0 0 0
-0.64 0.36 1
+0 0 0
 #VCS Setup
 #In World coordinates specify
 0 0 0

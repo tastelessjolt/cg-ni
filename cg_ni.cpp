@@ -9,20 +9,30 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-std::vector<float> points;
-std::vector<float> triangles;
-
-int mode = CI_INSPECTION_MODE;
-
 GLuint shaderProgram;
-GLuint vbo_points, vbo_triangles, vao_points, vao_triangles;
+
+GLuint vao;
+GLuint * vbo_vec;
+GLuint vp, vcol;
+
+std::vector<GLfloat> scenetriangles[N_OBJECTS];
+std::vector<GLfloat> scaleParams[N_OBJECTS];
+std::vector<GLfloat> rotationParams[N_OBJECTS];
+std::vector<GLfloat> translationParams[N_OBJECTS];
+
+GLfloat eye[3];
+GLfloat lookat[3];
+GLfloat up[3];
+
+GLfloat frustum[6];
 
 glm::mat4 rotation_matrix;
 glm::mat4 ortho_matrix;
 glm::mat4 modelview_matrix;
 glm::mat4 look_at;
+
 glm::mat4 translate;
-glm::mat4 translate_inv;
+
 GLuint uModelViewMatrix;
 
 GLfloat xrot = 0;
@@ -33,32 +43,19 @@ GLfloat xpos = 0;
 GLfloat ypos = 0;
 GLfloat zpos = 0;
 
-GLfloat rcol = 0.0f;
-GLfloat gcol = 0.0f;
-GLfloat bcol = 0.0f;
-
-int mode_state;
-bool mode_printed = false;
-
-GLfloat zpos_state;
-bool zpos_printed = false;
-
-GLfloat rcol_state, gcol_state, bcol_state;
-bool col_printed = false;
-
-glm::vec3 getCentroid () {
-  if (triangles.size() > 18) {   
+glm::vec3 getCentroid (std::vector<GLfloat> object) {
+  if (object.size() > 18) {   
     GLfloat sumx = 0, sumy = 0, sumz = 0;
-    for (int i = 0; i < triangles.size()/18; ++i){
-      sumx += triangles[18*i];
-      sumy += triangles[18*i+1];
-      sumz += triangles[18*i+2];
+    for (int i = 0; i < object.size()/18; ++i){
+      sumx += object[18*i];
+      sumy += object[18*i+1];
+      sumz += object[18*i+2];
     }
 
-    int p = triangles.size()/18;
-    sumx += triangles[18*(p-1) + 0 + 6] + triangles[18*(p-1) + 0 + 12];
-    sumy += triangles[18*(p-1) + 1 + 6] + triangles[18*(p-1) + 1 + 12];
-    sumz += triangles[18*(p-1) + 2 + 6] + triangles[18*(p-1) + 2 + 12];
+    int p = object.size()/18;
+    sumx += object[18*(p-1) + 0 + 6] + object[18*(p-1) + 0 + 12];
+    sumy += object[18*(p-1) + 1 + 6] + object[18*(p-1) + 1 + 12];
+    sumz += object[18*(p-1) + 2 + 6] + object[18*(p-1) + 2 + 12];
 
     return glm::vec3(sumx/(p + 2.0), sumy/(p + 2.0), sumz/(p + 2.0));
   }
@@ -67,33 +64,7 @@ glm::vec3 getCentroid () {
 
 void printState()
 {
-  if ( mode_state != mode ){
-    mode_printed = false;
-    mode_state = mode;
-  }
-  if ( zpos_state != zpos ){
-    zpos_printed = false;
-    zpos_state = zpos;
-  }
-  if ( rcol_state != rcol or gcol_state != gcol or bcol_state != bcol ){
-    col_printed = false;
-    rcol_state = rcol;
-    gcol_state = gcol;
-    bcol_state = bcol;
-  }
-    
-  if (!mode_printed){
-    std::cout << "Mode: " << ((mode == CI_MODELLING_MODE)?"Modelling":"Inspection") << std::endl;
-    mode_printed = true;
-  }
-  if (!zpos_printed){
-    std::cout << "Drawing plane at: " << zpos << std::endl;
-    zpos_printed = true;
-  }
-  if (!col_printed){
-    std::cout << "Current color: " << "(" << rcol << ", " << gcol << ", " << bcol << ")" << std::endl;
-    col_printed = true;
-  }
+  // TODO
 }
 
 void initShadersGL(void)
@@ -112,30 +83,16 @@ void initShadersGL(void)
 void initVertexBufferGL(void)
 {
   //Ask GL for a Vertex Buffer Object (vbo)
-  glGenBuffers (1, &vbo_points);
+  vbo_vec = new GLuint[N_OBJECTS];
+  glGenBuffers (N_OBJECTS, vbo_vec);
 
-  // Set it as the current buffer to be used by binding it
-  // glBindBuffer (GL_ARRAY_BUFFER, vbo_points);
-  //Copy the points into the current buffer - 9 float values, start pointer and static data
-  // glBufferData (GL_ARRAY_BUFFER, points.size() * sizeof (float), &points[0], GL_DYNAMIC_DRAW);
-
-  glGenBuffers (1, &vbo_triangles);
-  //   // Set it as the current buffer to be used by binding it
-  // glBindBuffer (GL_ARRAY_BUFFER, vbo_triangles);
-  // //Copy the points into the current buffer - 9 float values, start pointer and static data
-  // glBufferData (GL_ARRAY_BUFFER, triangles.size() * sizeof (float), &triangles[0], GL_DYNAMIC_DRAW);
-
-  //Ask GL for a Vertex Attribute Object (vao_points)
-  glGenVertexArrays (1, &vao_points);
-  //Set it as the current array to be used by binding it
-  // glBindVertexArray (vao_points);
-  //Enable the vertex attribute
-  // glEnableVertexAttribArray (0);
-  //This the layout of our first vertex buffer
-  //"0" means define the layout for attribute number 0. "3" means that the variables are vec3 made from every 3 floats 
-  // glVertexAttribPointer (0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+  //Ask GL for a Vertex Attribute Object (vao)
+  glGenVertexArrays (1, &vao);
 
   uModelViewMatrix = glGetUniformLocation(shaderProgram, "uModelViewMatrix");
+
+  vp = glGetAttribLocation( shaderProgram, "vp");
+  vcol = glGetAttribLocation( shaderProgram, "vcol");
 
   glPointSize(5.0f);
 }
@@ -145,56 +102,44 @@ void renderGL(void)
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glUseProgram(shaderProgram);
   
-  if (mode == CI_MODELLING_MODE){
-    look_at = glm::lookAt(glm::vec3(xpos, ypos, -2.0), glm::vec3(xpos, ypos, 1.0), glm::vec3(0.0, 1.0, 0.0));
-  } 
-  else {
-    glm::vec3 centroid = getCentroid();
+  glm::mat4 sceneTranform = glm::ortho(-2.0, 2.0, -2.0, 2.0, -10.0, 10.0);
 
-    translate = glm::translate(glm::mat4(1.0f), -centroid);
-    translate_inv = glm::translate(glm::mat4(1.0f), centroid);
+  // Generate scene matrix 
+  for (int i = 0; i != N_OBJECTS; i++) {
+    // Generate matrix for each object 
+    glm::vec3 centroid = getCentroid(scenetriangles[i]);
 
-    rotation_matrix = glm::rotate(glm::mat4(1.0f), xrot, glm::vec3(1.0f,0.0f,0.0f));
-    rotation_matrix = glm::rotate(rotation_matrix, yrot, glm::vec3(0.0f,1.0f,0.0f));
-    rotation_matrix = glm::rotate(rotation_matrix, zrot, glm::vec3(0.0f,0.0f,1.0f));
-    
-    look_at = glm::lookAt(glm::vec3(xpos, ypos, -2.0), glm::vec3(xpos, ypos, 1.0), glm::vec3(0.0, 1.0, 0.0));
-    look_at = (look_at * (translate_inv * rotation_matrix * translate));
+    glm::mat4 translate_centering = glm::translate(glm::mat4(1.0f), -centroid);
+    // translate_centering_inv = glm::translate(glm::mat4(1.0f), centroid);
+
+    glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(translationParams[i][0], translationParams[i][1], translationParams[i][2]));
+    glm::mat4 scaling = glm::scale(glm::mat4(1.0f), glm::vec3(scaleParams[i][0], scaleParams[i][1], scaleParams[i][2]));
+
+    glm::mat4 rotation_matrix = glm::rotate(glm::mat4(1.0f), rotationParams[i][0], glm::vec3(1.0f,0.0f,0.0f));
+    rotation_matrix = glm::rotate(rotation_matrix, rotationParams[i][1], glm::vec3(0.0f,1.0f,0.0f));
+    rotation_matrix = glm::rotate(rotation_matrix, rotationParams[i][2], glm::vec3(0.0f,0.0f,1.0f));
+
+    glm::mat4 objectViewTranform = translate * rotation_matrix * scaling * translate_centering;
+    modelview_matrix = sceneTranform * objectViewTranform;
+
+    // Make shader variable mappings 
+    glUniformMatrix4fv(uModelViewMatrix, 1, GL_FALSE, glm::value_ptr(modelview_matrix));
+
+    // Bind Buffer object
+    glBindBuffer (GL_ARRAY_BUFFER, vbo_vec[i]);
+    glBufferData (GL_ARRAY_BUFFER, scenetriangles[i].size() * sizeof (float), &(scenetriangles[i][0]), GL_DYNAMIC_DRAW);
+    // Bind Array object
+    glBindVertexArray (vao);
+
+    glEnableVertexAttribArray (vp);
+    glEnableVertexAttribArray (vcol);
+
+    glVertexAttribPointer (vp, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), NULL);
+    glVertexAttribPointer (vcol, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(3 * sizeof(float)));
+
+    // Call glDraw
+    glDrawArrays(GL_TRIANGLES, 0, scenetriangles[i].size()/6);
   }
-  
-  ortho_matrix = glm::ortho(-1.0, 1.0, -1.0, 1.0, -10.0, 10.0);
-  modelview_matrix = ortho_matrix * look_at;
-  glUniformMatrix4fv(uModelViewMatrix, 1, GL_FALSE, glm::value_ptr(modelview_matrix));
-  
-  GLuint vp = glGetAttribLocation( shaderProgram, "vp");
-  GLuint vcol = glGetAttribLocation( shaderProgram, "vcol");
-  
-
-  glBindBuffer (GL_ARRAY_BUFFER, vbo_points);
-  glBufferData (GL_ARRAY_BUFFER, points.size() * sizeof (float), &points[0], GL_DYNAMIC_DRAW);
-  glBindVertexArray (vao_points);
-
-  glEnableVertexAttribArray (vp);
-  glEnableVertexAttribArray (vcol);
-
-  glVertexAttribPointer (vp, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), NULL);
-  glVertexAttribPointer (vcol, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(3 * sizeof(float)));
-
-  glDrawArrays(GL_POINTS, 0, points.size()/6);
-
-
-  glBindBuffer (GL_ARRAY_BUFFER, vbo_triangles);
-  glBufferData (GL_ARRAY_BUFFER, triangles.size() * sizeof (float), &triangles[0], GL_DYNAMIC_DRAW);
-  glBindVertexArray (vao_points);
-
-  glEnableVertexAttribArray (vp);
-  glEnableVertexAttribArray (vcol);
-
-  glVertexAttribPointer (vp, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), NULL);
-  glVertexAttribPointer (vcol, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(3 * sizeof(float)));
-
-  glDrawArrays(GL_TRIANGLES, 0, triangles.size()/6);
-
 }
 
 int main(int argc, char** argv)
@@ -256,9 +201,10 @@ int main(int argc, char** argv)
 
   //Initialize GL state
   csX75::initGL();
+  csX75::load_scene_file();
+  
   initShadersGL();
   initVertexBufferGL();
-
   // Loop until the user closes the window
   while (glfwWindowShouldClose(window) == 0)
     {

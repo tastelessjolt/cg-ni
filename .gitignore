@@ -1,8 +1,9 @@
-cg_ichi
+cg_ni
 *.o
 *.raw
-cg_ichi.dSYM/
-cg_ichi.dSYM/*
+*.scn
+cg_ni.dSYM/
+cg_ni.dSYM/*
 src/
 src/*
 index.html

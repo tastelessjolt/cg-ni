@@ -7,6 +7,8 @@
 // Define a helpful macro for handling offsets into buffer objects
 #define BUFFER_OFFSET( offset )   ((GLvoid*) (offset))
 
+#define N_OBJECTS 3
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
@@ -33,6 +35,8 @@ namespace csX75
   void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
   //!GLFW mouse click callback
   void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+  //! Load scene file
+  void load_scene_file();
 };
 
 #endif
