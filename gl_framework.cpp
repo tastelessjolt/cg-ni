@@ -22,6 +22,7 @@ extern GLfloat lookat[3];
 extern GLfloat up[3];
 
 extern GLfloat frustum[6];
+extern view currView;
 
 namespace csX75
 {
@@ -261,7 +262,21 @@ namespace csX75
     else if (key == GLFW_KEY_Q && (action == GLFW_PRESS)) {
       quit(window);
     }
+    else if (key == GLFW_KEY_0 && (action == GLFW_PRESS)) {
 
+    }
+    else if (key == GLFW_KEY_1 && (action == GLFW_PRESS)) {
+
+    }
+    else if (key == GLFW_KEY_2 && (action == GLFW_PRESS)) {
+
+    }
+    else if (key == GLFW_KEY_3 && (action == GLFW_PRESS)) {
+
+    }
+    else if (key == GLFW_KEY_4 && (action == GLFW_PRESS)) {
+
+    }
   }
 
 

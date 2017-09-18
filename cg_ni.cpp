@@ -11,7 +11,7 @@
 
 GLuint shaderProgram;
 
-GLuint vao;
+GLuint * vao_vec, vao_frame;
 GLuint frame;
 GLuint * vbo_vec;
 GLuint vp, vcol;
@@ -44,6 +44,8 @@ GLfloat zrot = 0;
 GLfloat xpos = 0;
 GLfloat ypos = 0;
 GLfloat zpos = 0;
+
+view currView = WCS;
 
 glm::vec3 getCentroid (std::vector<GLfloat> object) {
   if (object.size() > 18) {   
@@ -196,28 +198,51 @@ void initVertexBufferGL(void)
 {
   //Ask GL for a Vertex Buffer Object (vbo)
   vbo_vec = new GLuint[N_OBJECTS];
-  glGenBuffers (N_OBJECTS, vbo_vec);
+  vao_vec = new GLuint[N_OBJECTS];
 
+  glGenBuffers (N_OBJECTS, vbo_vec);
   glGenBuffers (1, &frame);
 
   //Ask GL for a Vertex Attribute Object (vao)
-  glGenVertexArrays (1, &vao);
+  glGenVertexArrays (N_OBJECTS, vao_vec);
+  glGenVertexArrays (1, &vao_frame);
 
   createFrameLines(frame_lines, frustum[0], frustum[1], frustum[2], frustum[3], frustum[4], frustum[5]);
+
+  vp = glGetAttribLocation( shaderProgram, "vp");
+  vcol = glGetAttribLocation( shaderProgram, "vcol");
+
+  uModelViewMatrix = glGetUniformLocation(shaderProgram, "uModelViewMatrix");
+  
+  // Frustum VAO_vec Related 
+  // Bind Array object
+  glBindVertexArray (vao_frame);
 
   // Bind Buffer object
   glBindBuffer (GL_ARRAY_BUFFER, frame);
   glBufferData (GL_ARRAY_BUFFER, frame_lines.size() * sizeof (float), &(frame_lines[0]), GL_STATIC_DRAW);
 
+  glEnableVertexAttribArray (vp);
+  glEnableVertexAttribArray (vcol);
+
+  glVertexAttribPointer (vp, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), NULL);
+  glVertexAttribPointer (vcol, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(3 * sizeof(float)));
+
+
+  // Objects VAO_vec Related 
   for (int i = 0; i != N_OBJECTS; i++) {
+    // Bind Array object
+    glBindVertexArray (vao_vec[i]);
+
+    glEnableVertexAttribArray (vp);
+    glEnableVertexAttribArray (vcol);
+
     // Bind Buffer object
     glBindBuffer (GL_ARRAY_BUFFER, vbo_vec[i]);
     glBufferData (GL_ARRAY_BUFFER, scenetriangles[i].size() * sizeof (float), &(scenetriangles[i][0]), GL_STATIC_DRAW);
+    glVertexAttribPointer (vp, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), NULL);
+    glVertexAttribPointer (vcol, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(3 * sizeof(float)));
   }
-  uModelViewMatrix = glGetUniformLocation(shaderProgram, "uModelViewMatrix");
-
-  vp = glGetAttribLocation( shaderProgram, "vp");
-  vcol = glGetAttribLocation( shaderProgram, "vcol");
 
   glPointSize(5.0f);
 }
@@ -241,21 +266,8 @@ void renderGL(void)
   // Make shader variable mappings 
   glUniformMatrix4fv(uModelViewMatrix, 1, GL_FALSE, glm::value_ptr(modelview_matrix));
 
-  // Bind Buffer object
-  glBindBuffer (GL_ARRAY_BUFFER, frame);
-  // glBufferData (GL_ARRAY_BUFFER, frame_lines.size() * sizeof (float), &(frame_lines[0]), GL_STATIC_DRAW);
-  // Bind Array object
-  glBindVertexArray (vao);
-
-  glEnableVertexAttribArray (vp);
-  glEnableVertexAttribArray (vcol);
-
-  glVertexAttribPointer (vp, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), NULL);
-  glVertexAttribPointer (vcol, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(3 * sizeof(float)));
-
-  // Call glDraw
+  glBindVertexArray (vao_frame);
   glDrawArrays(GL_LINES, 0, frame_lines.size()/6);
-
 
 
   // Generate scene matrix 
@@ -279,19 +291,7 @@ void renderGL(void)
     // Make shader variable mappings 
     glUniformMatrix4fv(uModelViewMatrix, 1, GL_FALSE, glm::value_ptr(modelview_matrix));
 
-    // Bind Buffer object
-    glBindBuffer (GL_ARRAY_BUFFER, vbo_vec[i]);
-    // glBufferData (GL_ARRAY_BUFFER, scenetriangles[i].size() * sizeof (float), &(scenetriangles[i][0]), GL_STATIC_DRAW);
-    // Bind Array object
-    glBindVertexArray (vao);
-
-    glEnableVertexAttribArray (vp);
-    glEnableVertexAttribArray (vcol);
-
-    glVertexAttribPointer (vp, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), NULL);
-    glVertexAttribPointer (vcol, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(3 * sizeof(float)));
-
-    // Call glDraw
+    glBindVertexArray (vao_vec[i]);
     glDrawArrays(GL_TRIANGLES, 0, scenetriangles[i].size()/6);
   }
 }

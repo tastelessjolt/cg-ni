@@ -22,6 +22,11 @@
 #include <fstream>
 #include <sstream>
 
+enum view
+{
+  WCS, VCS, CCS, NDCS, DCS
+};
+
 namespace csX75
 {
   //! Initialize GL State
