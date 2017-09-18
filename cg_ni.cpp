@@ -20,6 +20,7 @@ std::vector<GLfloat> scenetriangles[N_OBJECTS];
 std::vector<GLfloat> scaleParams[N_OBJECTS];
 std::vector<GLfloat> rotationParams[N_OBJECTS];
 std::vector<GLfloat> translationParams[N_OBJECTS];
+std::vector<GLfloat> frame_lines;
 
 GLfloat eye[3];
 GLfloat lookat[3];
@@ -61,43 +62,6 @@ glm::vec3 getCentroid (std::vector<GLfloat> object) {
     return glm::vec3(sumx/(p + 2.0), sumy/(p + 2.0), sumz/(p + 2.0));
   }
   return glm::vec3(0, 0, 0);
-}
-
-void printState()
-{
-  // TODO
-}
-
-void initShadersGL(void)
-{
-  std::string vertex_shader_file("simple_vs.glsl");
-  std::string fragment_shader_file("simple_fs.glsl");
-
-  std::vector<GLuint> shaderList;
-  shaderList.push_back(csX75::LoadShaderGL(GL_VERTEX_SHADER, vertex_shader_file));
-  shaderList.push_back(csX75::LoadShaderGL(GL_FRAGMENT_SHADER, fragment_shader_file));
-
-  shaderProgram = csX75::CreateProgramGL(shaderList);
-  
-}
-
-void initVertexBufferGL(void)
-{
-  //Ask GL for a Vertex Buffer Object (vbo)
-  vbo_vec = new GLuint[N_OBJECTS];
-  glGenBuffers (N_OBJECTS, vbo_vec);
-
-  glGenBuffers (1, &frame);
-
-  //Ask GL for a Vertex Attribute Object (vao)
-  glGenVertexArrays (1, &vao);
-
-  uModelViewMatrix = glGetUniformLocation(shaderProgram, "uModelViewMatrix");
-
-  vp = glGetAttribLocation( shaderProgram, "vp");
-  vcol = glGetAttribLocation( shaderProgram, "vcol");
-
-  glPointSize(5.0f);
 }
 
 void pushPoint(std::vector<GLfloat> &frame_lines, GLfloat x, GLfloat y, GLfloat z) {
@@ -210,6 +174,56 @@ void createFrameLines(std::vector<GLfloat> &frame_lines, GLfloat L, GLfloat R, G
 }
 
 
+void printState()
+{
+  // TODO
+}
+
+void initShadersGL(void)
+{
+  std::string vertex_shader_file("simple_vs.glsl");
+  std::string fragment_shader_file("simple_fs.glsl");
+
+  std::vector<GLuint> shaderList;
+  shaderList.push_back(csX75::LoadShaderGL(GL_VERTEX_SHADER, vertex_shader_file));
+  shaderList.push_back(csX75::LoadShaderGL(GL_FRAGMENT_SHADER, fragment_shader_file));
+
+  shaderProgram = csX75::CreateProgramGL(shaderList);
+  
+}
+
+void initVertexBufferGL(void)
+{
+  //Ask GL for a Vertex Buffer Object (vbo)
+  vbo_vec = new GLuint[N_OBJECTS];
+  glGenBuffers (N_OBJECTS, vbo_vec);
+
+  glGenBuffers (1, &frame);
+
+  //Ask GL for a Vertex Attribute Object (vao)
+  glGenVertexArrays (1, &vao);
+
+  createFrameLines(frame_lines, frustum[0], frustum[1], frustum[2], frustum[3], frustum[4], frustum[5]);
+
+  // Bind Buffer object
+  glBindBuffer (GL_ARRAY_BUFFER, frame);
+  glBufferData (GL_ARRAY_BUFFER, frame_lines.size() * sizeof (float), &(frame_lines[0]), GL_STATIC_DRAW);
+
+  for (int i = 0; i != N_OBJECTS; i++) {
+    // Bind Buffer object
+    glBindBuffer (GL_ARRAY_BUFFER, vbo_vec[i]);
+    glBufferData (GL_ARRAY_BUFFER, scenetriangles[i].size() * sizeof (float), &(scenetriangles[i][0]), GL_STATIC_DRAW);
+  }
+  uModelViewMatrix = glGetUniformLocation(shaderProgram, "uModelViewMatrix");
+
+  vp = glGetAttribLocation( shaderProgram, "vp");
+  vcol = glGetAttribLocation( shaderProgram, "vcol");
+
+  glPointSize(5.0f);
+}
+
+
+
 void renderGL(void)
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -222,9 +236,6 @@ void renderGL(void)
   look_at = glm::lookAt(glm::vec3(eye[0], eye[1], eye[2]), glm::vec3(lookat[0], lookat[1], lookat[2]), glm::vec3(up[0], up[1], up[2]));
   look_at_inv = glm::inverse(look_at);
 
-  std::vector<GLfloat> frame_lines;
-  createFrameLines(frame_lines, frustum[0], frustum[1], frustum[2], frustum[3], frustum[4], frustum[5]);
-
   modelview_matrix = sceneTranform * look_at_inv;
 
   // Make shader variable mappings 
@@ -232,7 +243,7 @@ void renderGL(void)
 
   // Bind Buffer object
   glBindBuffer (GL_ARRAY_BUFFER, frame);
-  glBufferData (GL_ARRAY_BUFFER, frame_lines.size() * sizeof (float), &(frame_lines[0]), GL_DYNAMIC_DRAW);
+  // glBufferData (GL_ARRAY_BUFFER, frame_lines.size() * sizeof (float), &(frame_lines[0]), GL_STATIC_DRAW);
   // Bind Array object
   glBindVertexArray (vao);
 
@@ -270,7 +281,7 @@ void renderGL(void)
 
     // Bind Buffer object
     glBindBuffer (GL_ARRAY_BUFFER, vbo_vec[i]);
-    glBufferData (GL_ARRAY_BUFFER, scenetriangles[i].size() * sizeof (float), &(scenetriangles[i][0]), GL_DYNAMIC_DRAW);
+    // glBufferData (GL_ARRAY_BUFFER, scenetriangles[i].size() * sizeof (float), &(scenetriangles[i][0]), GL_STATIC_DRAW);
     // Bind Array object
     glBindVertexArray (vao);
 

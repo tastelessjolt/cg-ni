@@ -9,7 +9,7 @@ LIBS=$(OPENGLLIB) $(GLEWLIB) $(GLFWLIB)
 else
 # check for Linux and run other commands
 OPENGLLIB= -lGL
-GLFWLIB = -lglfw
+GLFWLIB = -lglfw3
 LIBS=$(OPENGLLIB) $(GLEWLIB) $(GLFWLIB) -lX11 -lXi -lXrandr -lXxf86vm -lXinerama -lXcursor -lrt -lm -pthread -ldl
 endif
 
