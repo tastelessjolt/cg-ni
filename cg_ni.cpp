@@ -27,6 +27,7 @@ GLfloat lookat[3];
 GLfloat up[3];
 
 GLfloat frustum[6];
+GLfloat R, L, T, B, N, F;
 
 glm::mat4 rotation_matrix;
 glm::mat4 ortho_matrix;
@@ -82,19 +83,19 @@ void createFrameLines(std::vector<GLfloat> &frame_lines, GLfloat L, GLfloat R, G
 
   pushPoint(frame_lines, 0.0, 0.0, 0.0);
   pushPoint(frame_lines, 1.0, 0.0, 0.0);
-  pushPoint(frame_lines, -L, T, -N);
+  pushPoint(frame_lines, L, T, -N);
   pushPoint(frame_lines, 1.0, 0.0, 0.0);
 
 
   pushPoint(frame_lines, 0.0, 0.0, 0.0);
   pushPoint(frame_lines, 1.0, 0.0, 0.0);
-  pushPoint(frame_lines, R, -B, -N);
+  pushPoint(frame_lines, R, B, -N);
   pushPoint(frame_lines, 1.0, 0.0, 0.0);
 
 
   pushPoint(frame_lines, 0.0, 0.0, 0.0);
   pushPoint(frame_lines, 1.0, 0.0, 0.0);
-  pushPoint(frame_lines, -L, -B, -N);
+  pushPoint(frame_lines, L, B, -N);
   pushPoint(frame_lines, 1.0, 0.0, 0.0);
 
 
@@ -105,26 +106,26 @@ void createFrameLines(std::vector<GLfloat> &frame_lines, GLfloat L, GLfloat R, G
   pushPoint(frame_lines, 0.0, 1.0, 1.0);
 
 
-  pushPoint(frame_lines, -L * F/N, T * F/N, -F);
+  pushPoint(frame_lines, L * F/N, T * F/N, -F);
   pushPoint(frame_lines, 0.0, 1.0, 1.0);
-  pushPoint(frame_lines, -L, T, -N);
-  pushPoint(frame_lines, 0.0, 1.0, 1.0);
-
-
-  pushPoint(frame_lines, R * F/N, -B * F/N, -F);
-  pushPoint(frame_lines, 0.0, 1.0, 1.0);
-  pushPoint(frame_lines, R, -B, -N);
+  pushPoint(frame_lines, L, T, -N);
   pushPoint(frame_lines, 0.0, 1.0, 1.0);
 
 
-  pushPoint(frame_lines, -L * F/N, -B * F/N, -F);
+  pushPoint(frame_lines, R * F/N, B * F/N, -F);
   pushPoint(frame_lines, 0.0, 1.0, 1.0);
-  pushPoint(frame_lines, -L, -B, -N);
+  pushPoint(frame_lines, R, B, -N);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+
+
+  pushPoint(frame_lines, L * F/N, B * F/N, -F);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+  pushPoint(frame_lines, L, B, -N);
   pushPoint(frame_lines, 0.0, 1.0, 1.0);
 
 
   // NEAR Plane
-  pushPoint(frame_lines, -L, T, -N);
+  pushPoint(frame_lines, L, T, -N);
   pushPoint(frame_lines, 0.0, 1.0, 1.0);
   pushPoint(frame_lines, R, T, -N);
   pushPoint(frame_lines, 0.0, 1.0, 1.0);
@@ -132,24 +133,24 @@ void createFrameLines(std::vector<GLfloat> &frame_lines, GLfloat L, GLfloat R, G
 
   pushPoint(frame_lines, R, T, -N);
   pushPoint(frame_lines, 0.0, 1.0, 1.0);
-  pushPoint(frame_lines, R, -B, -N);
+  pushPoint(frame_lines, R, B, -N);
   pushPoint(frame_lines, 0.0, 1.0, 1.0);
 
 
-  pushPoint(frame_lines, R, -B, -N);
+  pushPoint(frame_lines, R, B, -N);
   pushPoint(frame_lines, 0.0, 1.0, 1.0);
-  pushPoint(frame_lines, -L, -B, -N);
+  pushPoint(frame_lines, L, B, -N);
   pushPoint(frame_lines, 0.0, 1.0, 1.0);
 
 
-  pushPoint(frame_lines, -L, -B, -N);
+  pushPoint(frame_lines, L, B, -N);
   pushPoint(frame_lines, 0.0, 1.0, 1.0);
-  pushPoint(frame_lines, -L, T, -N);
+  pushPoint(frame_lines, L, T, -N);
   pushPoint(frame_lines, 0.0, 1.0, 1.0);
 
 
   // FAR Plane
-  pushPoint(frame_lines, -L * F/N, T * F/N, -F);
+  pushPoint(frame_lines, L * F/N, T * F/N, -F);
   pushPoint(frame_lines, 0.0, 1.0, 1.0);
   pushPoint(frame_lines, R * F/N, T * F/N, -F);
   pushPoint(frame_lines, 0.0, 1.0, 1.0);
@@ -157,22 +158,20 @@ void createFrameLines(std::vector<GLfloat> &frame_lines, GLfloat L, GLfloat R, G
 
   pushPoint(frame_lines, R * F/N, T * F/N, -F);
   pushPoint(frame_lines, 0.0, 1.0, 1.0);
-  pushPoint(frame_lines, R * F/N, -B * F/N, -F);
+  pushPoint(frame_lines, R * F/N, B * F/N, -F);
   pushPoint(frame_lines, 0.0, 1.0, 1.0);
 
 
-  pushPoint(frame_lines, R * F/N, -B * F/N, -F);
+  pushPoint(frame_lines, R * F/N, B * F/N, -F);
   pushPoint(frame_lines, 0.0, 1.0, 1.0);
-  pushPoint(frame_lines, -L * F/N, -B * F/N, -F);
-  pushPoint(frame_lines, 0.0, 1.0, 1.0);
-
-
-  pushPoint(frame_lines, -L * F/N, -B * F/N, -F);
-  pushPoint(frame_lines, 0.0, 1.0, 1.0);
-  pushPoint(frame_lines, -L * F/N, T * F/N, -F);
+  pushPoint(frame_lines, L * F/N, B * F/N, -F);
   pushPoint(frame_lines, 0.0, 1.0, 1.0);
 
 
+  pushPoint(frame_lines, L * F/N, B * F/N, -F);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
+  pushPoint(frame_lines, L * F/N, T * F/N, -F);
+  pushPoint(frame_lines, 0.0, 1.0, 1.0);
 }
 
 
@@ -196,6 +195,13 @@ void initShadersGL(void)
 
 void initVertexBufferGL(void)
 {
+
+  L = frustum[0];
+  R = frustum[1];
+  T = frustum[2];
+  B = frustum[3];
+  N = frustum[4];
+  F = frustum[5];
   //Ask GL for a Vertex Buffer Object (vbo)
   vbo_vec = new GLuint[N_OBJECTS];
   vao_vec = new GLuint[N_OBJECTS];
@@ -247,6 +253,15 @@ void initVertexBufferGL(void)
   glPointSize(5.0f);
 }
 
+glm::mat4 make_frustum(GLfloat R, GLfloat L, GLfloat B, GLfloat T, GLfloat N, GLfloat F) {
+  GLfloat arr[] =  { 
+    2 * N / (L - R),      0,                0,                      0,
+    0,                    2 * N / (T - B),  0,                      0,
+    (R + L)/(R - L),      (T + B)/(T - B),  - (F + N) / (F - N),    -1,
+    0,                    0,                -2 * F * N /(F - N),    0
+  };
+  return glm::make_mat4(arr);
+}
 
 
 void renderGL(void)
@@ -254,13 +269,41 @@ void renderGL(void)
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glUseProgram(shaderProgram);
 
-  glm::mat4 sceneTranform = glm::ortho(-2.0, 2.0, -2.0, 2.0, -10.0, 10.0);
-  
-  
+  glm::mat4 world_look_at = glm::lookAt(glm::vec3(xpos, ypos, -10.0 + zpos), glm::vec3(xpos, ypos, 1.0), glm::vec3(0.0, 1.0, 0.0));
+
+  glm::mat4 rotation_matrix = glm::rotate(glm::mat4(1.0f), xrot, glm::vec3(1.0f,0.0f,0.0f));
+  rotation_matrix = glm::rotate(rotation_matrix, yrot, glm::vec3(0.0f,1.0f,0.0f));
+  rotation_matrix = glm::rotate(rotation_matrix, zrot, glm::vec3(0.0f,0.0f,1.0f));
+
+  world_look_at = world_look_at * rotation_matrix;
+
   // Lines / Projectors 
   look_at = glm::lookAt(glm::vec3(eye[0], eye[1], eye[2]), glm::vec3(lookat[0], lookat[1], lookat[2]), glm::vec3(up[0], up[1], up[2]));
-  look_at_inv = glm::inverse(look_at);
 
+  glm::mat4 sceneTranform; 
+  switch(currView) {
+    case WCS:
+      sceneTranform = ((glm::mat4)glm::ortho(-2.0, 2.0, -2.0, 2.0, -100.0, 100.0)) * world_look_at;
+    break;
+    case VCS:
+      sceneTranform = ((glm::mat4)glm::ortho(-2.0, 2.0, -2.0, 2.0, -100.0, 100.0)) * world_look_at * look_at ;
+    break;
+
+    // TODO! v
+    case CCS:
+      sceneTranform = ((glm::mat4)make_frustum(R, L, B, T, N, F)) * look_at;
+    break;
+    case NDCS:
+      sceneTranform = ((glm::mat4)make_frustum(R, L, B, T, N, F)) * look_at;
+    break;
+    case DCS:
+      sceneTranform = ((glm::mat4)make_frustum(R, L, B, T, N, F)) * look_at;
+    break; 
+  }
+  
+  
+
+  look_at_inv = glm::inverse(look_at);
   modelview_matrix = sceneTranform * look_at_inv;
 
   // Make shader variable mappings 

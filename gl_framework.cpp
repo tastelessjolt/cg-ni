@@ -213,6 +213,15 @@ namespace csX75
     glfwSetWindowShouldClose(window, GL_TRUE);
   }
 
+  void reset() {
+    xrot = 0;
+    yrot = 0;
+    zrot = 0;
+    xpos = 0;
+    ypos = 0;
+    zpos = 0;
+  }
+
   //!GLFW keyboard callback
   void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
   {
@@ -263,22 +272,22 @@ namespace csX75
       quit(window);
     }
     else if (key == GLFW_KEY_0 && (action == GLFW_PRESS)) {
-
+      currView = WCS;
     }
     else if (key == GLFW_KEY_1 && (action == GLFW_PRESS)) {
-
+      reset();
+      currView = VCS;
     }
     else if (key == GLFW_KEY_2 && (action == GLFW_PRESS)) {
-
+      currView = CCS;
     }
     else if (key == GLFW_KEY_3 && (action == GLFW_PRESS)) {
-
+      currView = NDCS;
     }
     else if (key == GLFW_KEY_4 && (action == GLFW_PRESS)) {
-
+      currView = DCS;
     }
   }
-
 
   void convert_to_world(GLFWwindow* window, GLint x, GLint y, GLfloat* xf, GLfloat* yf){
     
@@ -290,6 +299,7 @@ namespace csX75
     *yf = -1 * (y - height/2.0)/(height/2.0) + ypos;
 
   }
+
   //!GLFW mouse click callback
   void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
   {
