@@ -2,6 +2,9 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
+#define ROT_STEP 0.1
+#define TRAN_STEP 0.05
+
 extern glm::vec3 getCentroid(std::vector<GLfloat>);
 
 extern GLfloat xrot;
@@ -229,41 +232,41 @@ namespace csX75
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
       quit(window);
     else if (key == GLFW_KEY_LEFT && (action == GLFW_PRESS || action == GLFW_REPEAT)){
-      yrot -= 0.2;
+      yrot -= ROT_STEP;
     } 
     else if (key == GLFW_KEY_RIGHT && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      yrot += 0.2;
+      yrot += ROT_STEP;
     }
     else if (key == GLFW_KEY_UP && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      xrot -= 0.2;
+      xrot -= ROT_STEP;
     }
     else if (key == GLFW_KEY_DOWN && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      xrot += 0.2;
+      xrot += ROT_STEP;
     }
     else if (key == GLFW_KEY_PAGE_UP && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      zrot -= 0.2;
+      zrot -= ROT_STEP;
     }
     else if (key == GLFW_KEY_PAGE_DOWN && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      zrot += 0.2;
+      zrot += ROT_STEP;
     }
     else if (key == GLFW_KEY_W && (action == GLFW_PRESS || action == GLFW_REPEAT)){
-      ypos += 0.05;
+      ypos += TRAN_STEP;
     } 
     else if (key == GLFW_KEY_A && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      xpos -= 0.05; 
+      xpos -= TRAN_STEP; 
     }
     else if (key == GLFW_KEY_S && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      ypos -= 0.05;
+      ypos -= TRAN_STEP;
     }
     else if (key == GLFW_KEY_D && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      xpos += 0.05;
+      xpos += TRAN_STEP;
     }
     else if (key == GLFW_KEY_Z && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
       // TODO Zoom in/out
-      zpos -= 0.05; 
+      zpos -= TRAN_STEP; 
     }
     else if (key == GLFW_KEY_X && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      zpos += 0.05;
+      zpos += TRAN_STEP;
     }
     else if (key == GLFW_KEY_F && (action == GLFW_PRESS)) {
       load_scene_file();
@@ -272,6 +275,7 @@ namespace csX75
       quit(window);
     }
     else if (key == GLFW_KEY_0 && (action == GLFW_PRESS)) {
+      reset();
       currView = WCS;
     }
     else if (key == GLFW_KEY_1 && (action == GLFW_PRESS)) {
@@ -279,12 +283,15 @@ namespace csX75
       currView = VCS;
     }
     else if (key == GLFW_KEY_2 && (action == GLFW_PRESS)) {
+      reset();
       currView = CCS;
     }
     else if (key == GLFW_KEY_3 && (action == GLFW_PRESS)) {
+      reset();
       currView = NDCS;
     }
     else if (key == GLFW_KEY_4 && (action == GLFW_PRESS)) {
+      reset();
       currView = DCS;
     }
   }

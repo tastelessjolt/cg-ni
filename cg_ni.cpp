@@ -36,7 +36,7 @@ glm::mat4 look_at, look_at_inv;
 
 glm::mat4 translate;
 
-GLuint uModelViewMatrix;
+GLuint uModelViewMatrix, uMode;
 
 GLfloat xrot = 0;
 GLfloat yrot = 0;
@@ -219,6 +219,7 @@ void initVertexBufferGL(void)
   vcol = glGetAttribLocation( shaderProgram, "vcol");
 
   uModelViewMatrix = glGetUniformLocation(shaderProgram, "uModelViewMatrix");
+  uMode = glGetUniformLocation(shaderProgram, "mode");
   
   // Frustum VAO_vec Related 
   // Bind Array object
@@ -269,7 +270,7 @@ void renderGL(void)
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glUseProgram(shaderProgram);
 
-  glm::mat4 world_look_at = glm::lookAt(glm::vec3(xpos, ypos, -10.0 + zpos), glm::vec3(xpos, ypos, 1.0), glm::vec3(0.0, 1.0, 0.0));
+  glm::mat4 world_look_at = glm::lookAt(glm::vec3(xpos, ypos, -10.0), glm::vec3(xpos, ypos, 1.0), glm::vec3(0.0, 1.0, 0.0));
 
   glm::mat4 rotation_matrix = glm::rotate(glm::mat4(1.0f), xrot, glm::vec3(1.0f,0.0f,0.0f));
   rotation_matrix = glm::rotate(rotation_matrix, yrot, glm::vec3(0.0f,1.0f,0.0f));
@@ -288,14 +289,14 @@ void renderGL(void)
     case VCS:
       sceneTranform = ((glm::mat4)glm::ortho(-2.0, 2.0, -2.0, 2.0, -100.0, 100.0)) * world_look_at * look_at ;
     break;
-
-    // TODO! v
     case CCS:
-      sceneTranform = ((glm::mat4)make_frustum(R, L, B, T, N, F)) * look_at;
+      sceneTranform = ((glm::mat4)glm::ortho(-2.0, 2.0, -2.0, 2.0, -100.0, 100.0)) * world_look_at * ((glm::mat4)make_frustum(R, L, B, T, N, F)) * look_at;
     break;
     case NDCS:
-      sceneTranform = ((glm::mat4)make_frustum(R, L, B, T, N, F)) * look_at;
+      sceneTranform = ((glm::mat4)glm::ortho(-2.0, 2.0, -2.0, 2.0, -100.0, 100.0)) * world_look_at * ((glm::mat4)make_frustum(R, L, B, T, N, F)) * look_at;
     break;
+    
+    // TODO! vg
     case DCS:
       sceneTranform = ((glm::mat4)make_frustum(R, L, B, T, N, F)) * look_at;
     break; 
@@ -308,6 +309,7 @@ void renderGL(void)
 
   // Make shader variable mappings 
   glUniformMatrix4fv(uModelViewMatrix, 1, GL_FALSE, glm::value_ptr(modelview_matrix));
+  glUniform1i(uMode, currView);
 
   glBindVertexArray (vao_frame);
   glDrawArrays(GL_LINES, 0, frame_lines.size()/6);
@@ -333,6 +335,7 @@ void renderGL(void)
 
     // Make shader variable mappings 
     glUniformMatrix4fv(uModelViewMatrix, 1, GL_FALSE, glm::value_ptr(modelview_matrix));
+    glUniform1i(uMode, currView);
 
     glBindVertexArray (vao_vec[i]);
     glDrawArrays(GL_TRIANGLES, 0, scenetriangles[i].size()/6);
