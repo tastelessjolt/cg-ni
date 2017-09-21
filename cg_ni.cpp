@@ -295,10 +295,10 @@ void renderGL(void)
     case NDCS:
       sceneTranform = ((glm::mat4)glm::ortho(-2.0, 2.0, -2.0, 2.0, -100.0, 100.0)) * world_look_at * ((glm::mat4)make_frustum(R, L, B, T, N, F)) * look_at;
     break;
-    
+
     // TODO! vg
     case DCS:
-      sceneTranform = ((glm::mat4)make_frustum(R, L, B, T, N, F)) * look_at;
+      sceneTranform = ((glm::mat4)glm::ortho(-1.0, 1.0, -1.0, 1.0, -100.0, 100.0)) * world_look_at * ((glm::mat4)make_frustum(R, L, B, T, N, F)) * look_at;;
     break; 
   }
   
