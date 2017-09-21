@@ -9,6 +9,9 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+//! The pointer to the GLFW window
+GLFWwindow* window;
+
 GLuint shaderProgram;
 
 GLuint * vao_vec, vao_frame;
@@ -264,13 +267,26 @@ glm::mat4 make_frustum(GLfloat R, GLfloat L, GLfloat B, GLfloat T, GLfloat N, GL
   return glm::make_mat4(arr);
 }
 
+glm::mat4 make_lookAt(glm::vec3 eye, glm::vec3 lookat, glm::vec3 up) {
+  glm::vec3 n = glm::normalize(-(lookat - eye));  
+  glm::vec3 u = glm::normalize(glm::cross(up, n));
+  glm::vec3 v = glm::cross(n, u);
+
+  glm::vec3 eye_ = -glm::transpose(glm::mat3(u, v, n)) * eye;
+
+  return glm::transpose(glm::mat4 (glm::vec4(u, eye_[0]), glm::vec4(v, eye_[1]), glm::vec4(n, eye_[2]), glm::vec4(0.0, 0.0, 0.0, 1.0)));
+}
+
+glm::mat4 make_ndcs2dcs(GLfloat l, GLfloat r, GLfloat b, GLfloat t) {
+  return glm::mat4(glm::vec4((r - l)/2, 0.0, 0.0, 0.0), glm::vec4(0.0, (t - b)/2, 0.0, 0.0), glm::vec4(0.0, 0.0, 0.5, 0.0), glm::vec4((r + l)/2, (t + b)/2, 0.5, 1.0));
+}
 
 void renderGL(void)
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glUseProgram(shaderProgram);
 
-  glm::mat4 world_look_at = glm::lookAt(glm::vec3(xpos, ypos, -10.0), glm::vec3(xpos, ypos, 1.0), glm::vec3(0.0, 1.0, 0.0));
+  glm::mat4 world_look_at = make_lookAt(glm::vec3(xpos, ypos, -1.0), glm::vec3(xpos, ypos, 1.0), glm::vec3(0.0, 1.0, 0.0));
 
   glm::mat4 rotation_matrix = glm::rotate(glm::mat4(1.0f), xrot, glm::vec3(1.0f,0.0f,0.0f));
   rotation_matrix = glm::rotate(rotation_matrix, yrot, glm::vec3(0.0f,1.0f,0.0f));
@@ -279,7 +295,7 @@ void renderGL(void)
   world_look_at = world_look_at * rotation_matrix;
 
   // Lines / Projectors 
-  look_at = glm::lookAt(glm::vec3(eye[0], eye[1], eye[2]), glm::vec3(lookat[0], lookat[1], lookat[2]), glm::vec3(up[0], up[1], up[2]));
+  look_at = make_lookAt(glm::vec3(eye[0], eye[1], eye[2]), glm::vec3(lookat[0], lookat[1], lookat[2]), glm::vec3(up[0], up[1], up[2]));
 
   glm::mat4 sceneTranform; 
   switch(currView) {
@@ -295,10 +311,12 @@ void renderGL(void)
     case NDCS:
       sceneTranform = ((glm::mat4)glm::ortho(-2.0, 2.0, -2.0, 2.0, -100.0, 100.0)) * world_look_at * ((glm::mat4)make_frustum(R, L, B, T, N, F)) * look_at;
     break;
-
-    // TODO! vg
     case DCS:
-      sceneTranform = ((glm::mat4)glm::ortho(-1.0, 1.0, -1.0, 1.0, -100.0, 100.0)) * world_look_at * ((glm::mat4)make_frustum(R, L, B, T, N, F)) * look_at;;
+      int width, height;
+      glfwGetWindowSize(window, &width, &height);
+      GLfloat l = 0, b = 0;
+      GLfloat r = width, t = height;
+      sceneTranform = ((glm::mat4)glm::ortho((double)l, (double)r, (double)b, (double)t, -1.0, 1.0)) * ((glm::mat4)make_ndcs2dcs(l, r, b, t)) * world_look_at * ((glm::mat4)make_frustum(R, L, B, T, N, F)) * look_at;;
     break; 
   }
   
@@ -344,9 +362,6 @@ void renderGL(void)
 
 int main(int argc, char** argv)
 {
-  //! The pointer to the GLFW window
-  GLFWwindow* window;
-
   //! Setting up the GLFW Error callback
   glfwSetErrorCallback(csX75::error_callback);
 
