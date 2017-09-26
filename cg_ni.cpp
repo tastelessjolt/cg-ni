@@ -39,7 +39,7 @@ glm::mat4 look_at, look_at_inv;
 
 glm::mat4 translate;
 
-GLuint uModelViewMatrix, uMode;
+GLuint uModelViewMatrix;
 
 GLfloat xrot = 0;
 GLfloat yrot = 0;
@@ -222,7 +222,6 @@ void initVertexBufferGL(void)
   vcol = glGetAttribLocation( shaderProgram, "vcol");
 
   uModelViewMatrix = glGetUniformLocation(shaderProgram, "uModelViewMatrix");
-  uMode = glGetUniformLocation(shaderProgram, "mode");
   
   // Frustum VAO_vec Related 
   // Bind Array object
@@ -278,7 +277,7 @@ glm::mat4 make_lookAt(glm::vec3 eye, glm::vec3 lookat, glm::vec3 up) {
 }
 
 glm::mat4 make_ndcs2dcs(GLfloat l, GLfloat r, GLfloat b, GLfloat t) {
-  return glm::mat4(glm::vec4((r - l)/2, 0.0, 0.0, 0.0), glm::vec4(0.0, (t - b)/2, 0.0, 0.0), glm::vec4(0.0, 0.0, 0.5, 0.0), glm::vec4((r + l)/2, (t + b)/2, 0.5, 1.0));
+  return glm::mat4(glm::vec4((r - l)/2, 0.0, 0.0, 0.0), glm::vec4(0.0, (t - b)/2, 0.0, 0.0), glm::vec4(0.0, 0.0, 0.01, 0.0), glm::vec4((r + l)/2, (t + b)/2, 0.01, 1.0));
 }
 
 void renderGL(void)
@@ -297,26 +296,27 @@ void renderGL(void)
   // Lines / Projectors 
   look_at = make_lookAt(glm::vec3(eye[0], eye[1], eye[2]), glm::vec3(lookat[0], lookat[1], lookat[2]), glm::vec3(up[0], up[1], up[2]));
 
-  glm::mat4 sceneTranform; 
+  glm::mat4 secondary_ortho = ((glm::mat4)glm::ortho(-2.0 - zpos, 2.0 + zpos, -2.0 - zpos, 2.0 + zpos, -100.0, 100.0)) * world_look_at;
+  glm::mat4 sceneTranform;
   switch(currView) {
     case WCS:
-      sceneTranform = ((glm::mat4)glm::ortho(-2.0, 2.0, -2.0, 2.0, -100.0, 100.0)) * world_look_at;
+      sceneTranform = secondary_ortho;
     break;
     case VCS:
-      sceneTranform = ((glm::mat4)glm::ortho(-2.0, 2.0, -2.0, 2.0, -100.0, 100.0)) * world_look_at * look_at ;
+      sceneTranform = secondary_ortho * look_at ;
     break;
     case CCS:
-      sceneTranform = ((glm::mat4)glm::ortho(-2.0, 2.0, -2.0, 2.0, -100.0, 100.0)) * world_look_at * ((glm::mat4)make_frustum(R, L, B, T, N, F)) * look_at;
+      sceneTranform = secondary_ortho * ((glm::mat4)make_frustum(R, L, B, T, N, F)) * look_at;
     break;
     case NDCS:
-      sceneTranform = ((glm::mat4)glm::ortho(-2.0, 2.0, -2.0, 2.0, -100.0, 100.0)) * world_look_at * ((glm::mat4)make_frustum(R, L, B, T, N, F)) * look_at;
+      sceneTranform = secondary_ortho * ((glm::mat4)make_frustum(R, L, B, T, N, F)) * look_at;
     break;
     case DCS:
       int width, height;
       glfwGetWindowSize(window, &width, &height);
       GLfloat l = 0, b = 0;
       GLfloat r = width, t = height;
-      sceneTranform = ((glm::mat4)glm::ortho((double)l, (double)r, (double)b, (double)t, -1.0, 1.0)) * ((glm::mat4)make_ndcs2dcs(l, r, b, t)) * world_look_at * ((glm::mat4)make_frustum(R, L, B, T, N, F)) * look_at;;
+      sceneTranform = secondary_ortho * ((glm::mat4)glm::ortho((double)l, (double)r, (double)b, (double)t, -1.0, 1.0)) * ((glm::mat4)make_ndcs2dcs(l, r, b, t)) * ((glm::mat4)make_frustum(R, L, B, T, N, F)) * look_at;;
     break; 
   }
   
@@ -327,7 +327,6 @@ void renderGL(void)
 
   // Make shader variable mappings 
   glUniformMatrix4fv(uModelViewMatrix, 1, GL_FALSE, glm::value_ptr(modelview_matrix));
-  glUniform1i(uMode, currView);
 
   glBindVertexArray (vao_frame);
   glDrawArrays(GL_LINES, 0, frame_lines.size()/6);
@@ -353,7 +352,6 @@ void renderGL(void)
 
     // Make shader variable mappings 
     glUniformMatrix4fv(uModelViewMatrix, 1, GL_FALSE, glm::value_ptr(modelview_matrix));
-    glUniform1i(uMode, currView);
 
     glBindVertexArray (vao_vec[i]);
     glDrawArrays(GL_TRIANGLES, 0, scenetriangles[i].size()/6);
