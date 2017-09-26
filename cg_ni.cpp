@@ -277,7 +277,12 @@ glm::mat4 make_lookAt(glm::vec3 eye, glm::vec3 lookat, glm::vec3 up) {
 }
 
 glm::mat4 make_ndcs2dcs(GLfloat l, GLfloat r, GLfloat b, GLfloat t) {
-  return glm::mat4(glm::vec4((r - l)/2, 0.0, 0.0, 0.0), glm::vec4(0.0, (t - b)/2, 0.0, 0.0), glm::vec4(0.0, 0.0, 0.01, 0.0), glm::vec4((r + l)/2, (t + b)/2, 0.01, 1.0));
+  return glm::mat4(
+    glm::vec4((r - l)/2,    0.0,            0.0,      0.0), 
+    glm::vec4(0.0,          (t - b)/2,      0.0,      0.0), 
+    glm::vec4(0.0,          0.0,            0.01,      0.0), 
+    glm::vec4((r + l)/2,    (t + b)/2,      0.01,      1.0)
+    );
 }
 
 void renderGL(void)
@@ -285,7 +290,7 @@ void renderGL(void)
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glUseProgram(shaderProgram);
 
-  glm::mat4 world_look_at = make_lookAt(glm::vec3(xpos, ypos, -1.0), glm::vec3(xpos, ypos, 1.0), glm::vec3(0.0, 1.0, 0.0));
+  glm::mat4 world_look_at = make_lookAt(glm::vec3(xpos, ypos, 1.0), glm::vec3(xpos, ypos, -1.0), glm::vec3(0.0, 1.0, 0.0));
 
   glm::mat4 rotation_matrix = glm::rotate(glm::mat4(1.0f), xrot, glm::vec3(1.0f,0.0f,0.0f));
   rotation_matrix = glm::rotate(rotation_matrix, yrot, glm::vec3(0.0f,1.0f,0.0f));
@@ -316,7 +321,7 @@ void renderGL(void)
       glfwGetWindowSize(window, &width, &height);
       GLfloat l = 0, b = 0;
       GLfloat r = width, t = height;
-      sceneTranform = secondary_ortho * ((glm::mat4)glm::ortho((double)l, (double)r, (double)b, (double)t, -1.0, 1.0)) * ((glm::mat4)make_ndcs2dcs(l, r, b, t)) * ((glm::mat4)make_frustum(R, L, B, T, N, F)) * look_at;;
+      sceneTranform = secondary_ortho * ((glm::mat4)glm::ortho((double)l, (double)r, (double)b, (double)t, -1.0, 1.0)) * ((glm::mat4)make_ndcs2dcs(l, r, b, t)) * ((glm::mat4)make_frustum(R, L, B, T, N, F)) * look_at;
     break; 
   }
   
