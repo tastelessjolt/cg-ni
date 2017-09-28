@@ -27,6 +27,9 @@ extern GLfloat up[3];
 extern GLfloat frustum[6];
 extern view currView;
 
+extern GLint clip;
+extern GLint load_done;
+
 namespace csX75
 {
   //! Initialize GL State
@@ -293,6 +296,10 @@ namespace csX75
     else if (key == GLFW_KEY_4 && (action == GLFW_PRESS)) {
       reset();
       currView = DCS;
+    }
+    else if (key == GLFW_KEY_C && (action == GLFW_PRESS)) {
+      clip = clip * -1;
+      load_done = -1;
     }
   }
 
