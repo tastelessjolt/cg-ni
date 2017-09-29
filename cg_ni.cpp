@@ -27,6 +27,8 @@ std::vector<GLfloat> rotationParams[N_OBJECTS];
 std::vector<GLfloat> translationParams[N_OBJECTS];
 std::vector<GLfloat> frame_lines;
 
+glm::mat4 objectViewTranform[N_OBJECTS];
+
 GLfloat eye[3];
 GLfloat lookat[3];
 GLfloat up[3];
@@ -211,34 +213,32 @@ void initShadersGL(void)
 GLuint calc_cscav_value(glm::vec4 point){
   GLuint val = 0b0;
 
-  if (point.x > 1.0){
-    val ^= 0b10000000;
+  if (point.x > point.w){
+    val ^= 0b100000;
   }
-  if (point.x < -1.0){
-    val ^= 0b01000000;
+  if (point.x < -point.w){
+    val ^= 0b010000;
   }
-  if (point.y > 1.0){
-    val ^= 0b00100000;
+  if (point.y > point.w){
+    val ^= 0b001000;
   }
-  if (point.y < -1.0){
-    val ^= 0b00010000;
+  if (point.y < -point.w){
+    val ^= 0b000100;
   }
-  if (point.z > 1.0){
-    val ^= 0b00001000;
+  if (point.z > point.w){
+    val ^= 0b000010;
   }
-  if (point.z < -1.0){
-    val ^= 0b00000100;
-  }
-  if (point.w > 1.0){
-    val ^= 0b00000010;
-  }
-  if (point.w < -1.0){
-    val ^= 0b00000001;
+  if (point.z < -point.w){
+    val ^= 0b000001;
   }
 
-  // std::cout << point.x << " " << point.y << " " << point.z << " " << point.w << " : " << std::bitset<32>(val) << std::endl;
+  // std::cout << point.x << " " << point.y << " " << point.z << " " << point.w << " : " << std::bitset<6>(val) << std::endl;
 
   return val;
+}
+
+void print_point(glm::vec4 a) {
+  std::cout << a.x << ", " << a.y << ", " << a.z << ", " << a.w << std::endl; 
 }
 
 void get_points_after_clip(glm::vec4 &a, glm::vec4 &b, GLuint cscav_a, GLuint cscav_b){
@@ -248,137 +248,144 @@ void get_points_after_clip(glm::vec4 &a, glm::vec4 &b, GLuint cscav_a, GLuint cs
 
   // clipping a
   // +x edge
-  if (cscav_a & 0b10000000 == 0b10000000)
+  if (cscav_a & 0b100000)
   {
-    glm::vec4 e = glm::vec4(1.0, 0.0, 0.0, 0.0);
-    glm::vec4 n = glm::vec4(1.0, 0.0, 0.0, 0.0);
-    GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    t_a = t_a + t * (t_b - t_a);
+
+    // glm::vec4 e = glm::vec4(t_a.w, 0.0, 0.0, 0.0);
+    // glm::vec4 n = glm::vec4(t_a.w, 0.0, 0.0, 0.0);
+    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
+   
+    GLfloat t = (t_b.x - t_b.w)/((t_b.x - t_b.w)-(t_a.x - t_a.w));
+    t_a = t * t_a + t_b * ( 1 - t );
   }
   // -x edge
-  if (cscav_a & 0b01000000 == 0b01000000)
+  if (cscav_a & 0b010000)
   {
-    glm::vec4 e = glm::vec4(-1.0, 0.0, 0.0, 0.0);
-    glm::vec4 n = glm::vec4(-1.0, 0.0, 0.0, 0.0);
-    GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    t_a = t_a + t * (t_b - t_a);
+    // glm::vec4 e = glm::vec4(-t_a.w, 0.0, 0.0, 0.0);
+    // glm::vec4 n = glm::vec4(-t_a.w, 0.0, 0.0, 0.0);
+    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
+    // t_a = t_a + t * (t_b - t_a);
+
+    GLfloat t = (t_b.x + t_b.w)/((t_b.x + t_b.w)-(t_a.x + t_a.w));
+    t_a = t * t_a + t_b * ( 1 - t );
   }
   // +y edge
-  if (cscav_a & 0b00100000 == 0b00100000)
+  if (cscav_a & 0b001000)
   {
-    glm::vec4 e = glm::vec4(0.0, 1.0, 0.0, 0.0);
-    glm::vec4 n = glm::vec4(0.0, 1.0, 0.0, 0.0);
-    GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    t_a = t_a + t * (t_b - t_a);
+    // glm::vec4 e = glm::vec4(0.0, t_a.w, 0.0, 0.0);
+    // glm::vec4 n = glm::vec4(0.0, t_a.w, 0.0, 0.0);
+    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
+    // t_a = t_a + t * (t_b - t_a);
+  
+    GLfloat t = (t_b.y - t_b.w)/((t_b.y - t_b.w)-(t_a.y - t_a.w));
+    t_a = t * t_a + t_b * ( 1 - t );
   }
   // -y edge
-  if (cscav_a & 0b00010000 == 0b00010000)
+  if (cscav_a & 0b000100)
   {
-    glm::vec4 e = glm::vec4(0.0, -1.0, 0.0, 0.0);
-    glm::vec4 n = glm::vec4(0.0, -1.0, 0.0, 0.0);
-    GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    t_a = t_a + t * (t_b - t_a);
+    // glm::vec4 e = glm::vec4(0.0, -t_a.w, 0.0, 0.0);
+    // glm::vec4 n = glm::vec4(0.0, -t_a.w, 0.0, 0.0);
+    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
+    // t_a = t_a + t * (t_b - t_a);
+
+    GLfloat t = (t_b.y + t_b.w)/((t_b.y + t_b.w)-(t_a.y + t_a.w));
+    t_a = t * t_a + t_b * ( 1 - t );
   }
   // +z edge
-  if (cscav_a & 0b00001000 == 0b00001000)
+  if (cscav_a & 0b000010)
   {
-    glm::vec4 e = glm::vec4(0.0, 0.0, 1.0, 0.0);
-    glm::vec4 n = glm::vec4(0.0, 0.0, 1.0, 0.0);
-    GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    t_a = t_a + t * (t_b - t_a);
+    // glm::vec4 e = glm::vec4(0.0, 0.0, t_a.w, 0.0);
+    // glm::vec4 n = glm::vec4(0.0, 0.0, t_a.w, 0.0);
+    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
+    // t_a = t_a + t * (t_b - t_a);
+
+    GLfloat t = (t_b.z - t_b.w)/((t_b.z - t_b.w)-(t_a.z - t_a.w));
+    t_a = t * t_a + t_b * ( 1 - t );
   }
   // -z edge
-  if (cscav_a & 0b00000100 == 0b00000100)
+  if (cscav_a & 0b000001)
   {
-    glm::vec4 e = glm::vec4(0.0, 0.0, -1.0, 0.0);
-    glm::vec4 n = glm::vec4(0.0, 0.0, -1.0, 0.0);
-    GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    t_a = t_a + t * (t_b - t_a);
+    // glm::vec4 e = glm::vec4(0.0, 0.0, -t_a.w, 0.0);
+    // glm::vec4 n = glm::vec4(0.0, 0.0, -t_a.w, 0.0);
+    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
+    // t_a = t_a + t * (t_b - t_a);
+  
+    GLfloat t = (t_b.z + t_b.w)/((t_b.z + t_b.w)-(t_a.z + t_a.w));
+    t_a = t * t_a + t_b * ( 1 - t );
   }
-  // +w edge
-  if (cscav_a & 0b00000010 == 0b00000010)
-  {
-    glm::vec4 e = glm::vec4(0.0, 0.0, 0.0, 1.0);
-    glm::vec4 n = glm::vec4(0.0, 0.0, 0.0, 1.0);
-    GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    t_a = t_a + t * (t_b - t_a);
-  }
-  // -w edge
-  if (cscav_a & 0b00000001 == 0b00000001)
-  {
-    glm::vec4 e = glm::vec4(0.0, 0.0, 0.0, -1.0);
-    glm::vec4 n = glm::vec4(0.0, 0.0, 0.0, -1.0);
-    GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    t_a = t_a + t * (t_b - t_a);
-  }
-
 
   // clipping b
   // +x edge
-  if (cscav_b & 0b10000000 == 0b10000000)
+  if (cscav_b & 0b100000)
   {
-    glm::vec4 e = glm::vec4(1.0, 0.0, 0.0, 0.0);
-    glm::vec4 n = glm::vec4(1.0, 0.0, 0.0, 0.0);
-    GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    t_b = t_a + t * (t_b - t_a);
+    // glm::vec4 e = glm::vec4(t_b.w, 0.0, 0.0, 0.0);
+    // glm::vec4 n = glm::vec4(t_b.w, 0.0, 0.0, 0.0);
+    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
+    // t_b = t_a + t * (t_b - t_a);
+  
+    GLfloat t = (t_b.x - t_b.w)/((t_b.x - t_b.w)-(t_a.x - t_a.w));
+    t_b = t * t_a + t_b * ( 1 - t );
   }
   // -x edge
-  if (cscav_b & 0b01000000 == 0b01000000)
+  if (cscav_b & 0b010000)
   {
-    glm::vec4 e = glm::vec4(-1.0, 0.0, 0.0, 0.0);
-    glm::vec4 n = glm::vec4(-1.0, 0.0, 0.0, 0.0);
-    GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    t_b = t_a + t * (t_b - t_a);
+    // glm::vec4 e = glm::vec4(-t_b.w, 0.0, 0.0, 0.0);
+    // glm::vec4 n = glm::vec4(-t_b.w, 0.0, 0.0, 0.0);
+    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
+    // t_b = t_a + t * (t_b - t_a);
+  
+    GLfloat t = (t_b.x + t_b.w)/((t_b.x + t_b.w)-(t_a.x + t_a.w));
+    t_b = t * t_a + t_b * ( 1 - t );
+
   }
   // +y edge
-  if (cscav_b & 0b00100000 == 0b00100000)
+  if (cscav_b & 0b001000)
   {
-    glm::vec4 e = glm::vec4(0.0, 1.0, 0.0, 0.0);
-    glm::vec4 n = glm::vec4(0.0, 1.0, 0.0, 0.0);
-    GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    t_b = t_a + t * (t_b - t_a);
+    // glm::vec4 e = glm::vec4(0.0, t_b.w, 0.0, 0.0);
+    // glm::vec4 n = glm::vec4(0.0, t_b.w, 0.0, 0.0);
+    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
+    // t_b = t_a + t * (t_b - t_a);
+
+    GLfloat t = (t_b.y - t_b.w)/((t_b.y - t_b.w)-(t_a.y - t_a.w));  
+    t_b = t * t_a + t_b * ( 1 - t );
+
   }
   // -y edge
-  if (cscav_b & 0b00010000 == 0b00010000)
+  if (cscav_b & 0b000100)
   {
-    glm::vec4 e = glm::vec4(0.0, -1.0, 0.0, 0.0);
-    glm::vec4 n = glm::vec4(0.0, -1.0, 0.0, 0.0);
-    GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    t_b = t_a + t * (t_b - t_a);
+    // glm::vec4 e = glm::vec4(0.0, -t_b.w, 0.0, 0.0);
+    // glm::vec4 n = glm::vec4(0.0, -t_b.w, 0.0, 0.0);
+    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
+    // t_b = t_a + t * (t_b - t_a);
+
+    GLfloat t = (t_b.y + t_b.w)/((t_b.y + t_b.w)-(t_a.y + t_a.w));
+    t_b = t * t_a + t_b * ( 1 - t );
+
   }
   // +z edge
-  if (cscav_b & 0b00001000 == 0b00001000)
+  if (cscav_b & 0b000010)
   {
-    glm::vec4 e = glm::vec4(0.0, 0.0, 1.0, 0.0);
-    glm::vec4 n = glm::vec4(0.0, 0.0, 1.0, 0.0);
-    GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    t_b = t_a + t * (t_b - t_a);
+    // glm::vec4 e = glm::vec4(0.0, 0.0, t_b.w, 0.0);
+    // glm::vec4 n = glm::vec4(0.0, 0.0, t_b.w, 0.0);
+    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
+    // t_b = t_a + t * (t_b - t_a);
+
+    GLfloat t = (t_b.z - t_b.w)/((t_b.z - t_b.w)-(t_a.z - t_a.w));
+    t_b = t * t_a + t_b * ( 1 - t );
+  
   }
   // -z edge
-  if (cscav_b & 0b00000100 == 0b00000100)
+  if (cscav_b & 0b000001)
   {
-    glm::vec4 e = glm::vec4(0.0, 0.0, -1.0, 0.0);
-    glm::vec4 n = glm::vec4(0.0, 0.0, -1.0, 0.0);
-    GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    t_b = t_a + t * (t_b - t_a);
-  }
-  // +w edge
-  if (cscav_b & 0b00000010 == 0b00000010)
-  {
-    glm::vec4 e = glm::vec4(0.0, 0.0, 0.0, 1.0);
-    glm::vec4 n = glm::vec4(0.0, 0.0, 0.0, 1.0);
-    GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    t_b = t_a + t * (t_b - t_a);
-  }
-  // -w edge
-  if (cscav_b & 0b00000001 == 0b00000001)
-  {
-    glm::vec4 e = glm::vec4(0.0, 0.0, 0.0, -1.0);
-    glm::vec4 n = glm::vec4(0.0, 0.0, 0.0, -1.0);
-    GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    t_b = t_a + t * (t_b - t_a);
-  }
+    // glm::vec4 e = glm::vec4(0.0, 0.0, -t_b.w, 0.0);
+    // glm::vec4 n = glm::vec4(0.0, 0.0, -t_b.w, 0.0);
+    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
+    // t_b = t_a + t * (t_b - t_a);
+  
+    GLfloat t = (t_b.z + t_b.w)/((t_b.z + t_b.w)-(t_a.z + t_a.w));
+    t_b = t * t_a + t_b * ( 1 - t ); 
 
+  }
 
   a = t_a; b = t_b;
 }
@@ -408,6 +415,7 @@ std::vector<GLfloat> srtn_ctr_ccol(std::vector<GLfloat> points, std::vector<GLui
       glm::vec4 b = transform * glm::vec4(points[trid + 6 + 0], points[trid + 6 + 1], points[trid + 6 + 2], 1.0);
       glm::vec4 c = transform * glm::vec4(points[trid + 12 + 0], points[trid + 12 + 1], points[trid + 12 + 2], 1.0);
 
+
       get_points_after_clip(a, b, cscav[3*i], cscav[3*i + 1]);
       get_points_after_clip(a, c, cscav[3*i], cscav[3*i + 2]);
 
@@ -423,6 +431,7 @@ std::vector<GLfloat> srtn_ctr_ccol(std::vector<GLfloat> points, std::vector<GLui
       pushPoint(v, points[trid + 12 + 3], points[trid + 12 + 4], points[trid + 12 + 5]);
 
     }
+
      else if (cscav[3*i] != 0 and cscav[3*i+1] == 0 and cscav[3*i+2] != 0)
     {
       int trid = 18*i;
@@ -430,8 +439,8 @@ std::vector<GLfloat> srtn_ctr_ccol(std::vector<GLfloat> points, std::vector<GLui
       glm::vec4 b = transform * glm::vec4(points[trid + 6 + 0], points[trid + 6 + 1], points[trid + 6 + 2], 1.0);
       glm::vec4 c = transform * glm::vec4(points[trid + 12 + 0], points[trid + 12 + 1], points[trid + 12 + 2], 1.0);
       
-      get_points_after_clip(b, a, cscav[3*i], cscav[3*i + 1]);
-      get_points_after_clip(b, c, cscav[3*i], cscav[3*i + 2]);
+      get_points_after_clip(b, a, cscav[3*i + 1], cscav[3*i]);
+      get_points_after_clip(b, c, cscav[3*i + 1], cscav[3*i + 2]);
 
       a = transform_inv * a; b = transform_inv * b; c = transform_inv * c;
 
@@ -452,8 +461,8 @@ std::vector<GLfloat> srtn_ctr_ccol(std::vector<GLfloat> points, std::vector<GLui
       glm::vec4 b = transform * glm::vec4(points[trid + 6 + 0], points[trid + 6 + 1], points[trid + 6 + 2], 1.0);
       glm::vec4 c = transform * glm::vec4(points[trid + 12 + 0], points[trid + 12 + 1], points[trid + 12 + 2], 1.0);
       
-      get_points_after_clip(c, b, cscav[3*i], cscav[3*i + 1]);
-      get_points_after_clip(c, a, cscav[3*i], cscav[3*i + 2]);
+      get_points_after_clip(c, b, cscav[3*i + 2], cscav[3*i + 1]);
+      get_points_after_clip(c, a, cscav[3*i + 2], cscav[3*i]);
 
       a = transform_inv * a; b = transform_inv * b; c = transform_inv * c;
 
@@ -506,6 +515,8 @@ std::vector<GLfloat> srtn_ctr_ccol(std::vector<GLfloat> points, std::vector<GLui
       pushPoint(v, points[trid + 0 + 3], points[trid + 0 + 4], points[trid + 0 + 5]);
 
     }
+
+    
      else if (cscav[3*i] == 0 and cscav[3*i+1] != 0 and cscav[3*i+2] == 0)
     {
       int trid = 18*i;
@@ -515,8 +526,8 @@ std::vector<GLfloat> srtn_ctr_ccol(std::vector<GLfloat> points, std::vector<GLui
       glm::vec4 b1 = transform * glm::vec4(points[trid + 6 + 0], points[trid + 6 + 1], points[trid + 6 + 2], 1.0);
       glm::vec4 b2 = transform * glm::vec4(points[trid + 6 + 0], points[trid + 6 + 1], points[trid + 6 + 2], 1.0);
 
-      get_points_after_clip(b1, a, cscav[3*i], cscav[3*i + 1]);
-      get_points_after_clip(b2, c, cscav[3*i], cscav[3*i + 2]);
+      get_points_after_clip(b1, a, cscav[3*i + 1], cscav[3*i]);
+      get_points_after_clip(b2, c, cscav[3*i + 1], cscav[3*i + 2]);
 
       b1 = transform_inv * b1;  b2 = transform_inv * b2;
 
@@ -552,8 +563,8 @@ std::vector<GLfloat> srtn_ctr_ccol(std::vector<GLfloat> points, std::vector<GLui
       glm::vec4 c1 = transform * glm::vec4(points[trid + 12 + 0], points[trid + 12 + 1], points[trid + 12 + 2], 1.0);
       glm::vec4 c2 = transform * glm::vec4(points[trid + 12 + 0], points[trid + 12 + 1], points[trid + 12 + 2], 1.0);
 
-      get_points_after_clip(c1, a, cscav[3*i], cscav[3*i + 1]);
-      get_points_after_clip(c2, b, cscav[3*i], cscav[3*i + 2]);
+      get_points_after_clip(c1, a, cscav[3*i + 2], cscav[3*i]);
+      get_points_after_clip(c2, b, cscav[3*i + 2], cscav[3*i + 1]);
 
       c1 = transform_inv * c1;  c2 = transform_inv * c2;
 
@@ -579,7 +590,6 @@ std::vector<GLfloat> srtn_ctr_ccol(std::vector<GLfloat> points, std::vector<GLui
       dehomo_push_point(v, c2);
       pushPoint(v, points[trid + 12 + 3], points[trid + 12 + 4], points[trid + 12 + 5]);
       
-
     }
 
   }
@@ -594,10 +604,11 @@ void clip_points(glm::mat4 transform){
 
     for (std::vector<GLfloat>::iterator i = scenetriangles[k].begin(); i != scenetriangles[k].end(); i+=6)
     {
-      cscav.push_back(calc_cscav_value(transform * glm::vec4(*i, *(i+1), *(i+2), 1.0)));
+      // std::cout << *i << ", " << *(i+1) << ", " << *(i+2) << std::endl;
+      cscav.push_back(calc_cscav_value(transform * objectViewTranform[k] * glm::vec4(*i, *(i+1), *(i+2), 1.0)));
     }
 
-    std::vector<GLfloat> v = srtn_ctr_ccol(scenetriangles[k], cscav, transform);
+    std::vector<GLfloat> v = srtn_ctr_ccol(scenetriangles[k], cscav, transform * objectViewTranform[k]);
 
     scenetriangles_clipped[k] = v;
   }
@@ -645,19 +656,22 @@ void initVertexBufferGL(void)
   glVertexAttribPointer (vcol, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(3 * sizeof(float)));
 
   // // Objects VAO_vec Related 
-  // for (int i = 0; i != N_OBJECTS; i++) {
-  //   // Bind Array object
-  //   glBindVertexArray (vao_vec[i]);
+  for (int i = 0; i != N_OBJECTS; i++) {
 
-  //   glEnableVertexAttribArray (vp);
-  //   glEnableVertexAttribArray (vcol);
+    glm::vec3 centroid = getCentroid(scenetriangles[i]);
 
-  //   // Bind Buffer object
-  //   glBindBuffer (GL_ARRAY_BUFFER, vbo_vec[i]);
-  //   glBufferData (GL_ARRAY_BUFFER, scenetriangles[i].size() * sizeof (float), &(scenetriangles[i][0]), GL_STATIC_DRAW);
-  //   glVertexAttribPointer (vp, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), NULL);
-  //   glVertexAttribPointer (vcol, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(3 * sizeof(float)));
-  // }
+    glm::mat4 translate_centering = glm::translate(glm::mat4(1.0f), -centroid);
+    // translate_centering_inv = glm::translate(glm::mat4(1.0f), centroid);
+
+    glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(translationParams[i][0], translationParams[i][1], translationParams[i][2]));
+    glm::mat4 scaling = glm::scale(glm::mat4(1.0f), glm::vec3(scaleParams[i][0], scaleParams[i][1], scaleParams[i][2]));
+
+    glm::mat4 rotation_matrix = glm::rotate(glm::mat4(1.0f), rotationParams[i][0], glm::vec3(1.0f,0.0f,0.0f));
+    rotation_matrix = glm::rotate(rotation_matrix, rotationParams[i][1], glm::vec3(0.0f,1.0f,0.0f));
+    rotation_matrix = glm::rotate(rotation_matrix, rotationParams[i][2], glm::vec3(0.0f,0.0f,1.0f));
+
+    objectViewTranform[i] = translate * rotation_matrix * scaling * translate_centering;
+  }
 
   glPointSize(5.0f);
 }
@@ -775,20 +789,8 @@ void renderGL(void)
   // Generate scene matrix 
   for (int i = 0; i != N_OBJECTS; i++) {
     // Generate matrix for each object 
-    glm::vec3 centroid = getCentroid(scenetriangles[i]);
-
-    glm::mat4 translate_centering = glm::translate(glm::mat4(1.0f), -centroid);
-    // translate_centering_inv = glm::translate(glm::mat4(1.0f), centroid);
-
-    glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(translationParams[i][0], translationParams[i][1], translationParams[i][2]));
-    glm::mat4 scaling = glm::scale(glm::mat4(1.0f), glm::vec3(scaleParams[i][0], scaleParams[i][1], scaleParams[i][2]));
-
-    glm::mat4 rotation_matrix = glm::rotate(glm::mat4(1.0f), rotationParams[i][0], glm::vec3(1.0f,0.0f,0.0f));
-    rotation_matrix = glm::rotate(rotation_matrix, rotationParams[i][1], glm::vec3(0.0f,1.0f,0.0f));
-    rotation_matrix = glm::rotate(rotation_matrix, rotationParams[i][2], glm::vec3(0.0f,0.0f,1.0f));
-
-    glm::mat4 objectViewTranform = translate * rotation_matrix * scaling * translate_centering;
-    modelview_matrix = sceneTranform * objectViewTranform;
+    
+    modelview_matrix = sceneTranform * objectViewTranform[i];
 
     // Make shader variable mappings 
     glUniformMatrix4fv(uModelViewMatrix, 1, GL_FALSE, glm::value_ptr(modelview_matrix));

@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 
-#define ROT_STEP 0.1
+#define ROT_STEP 0.00745
 #define TRAN_STEP 0.05
 
 extern glm::vec3 getCentroid(std::vector<GLfloat>);
@@ -235,22 +235,52 @@ namespace csX75
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
       quit(window);
     else if (key == GLFW_KEY_LEFT && (action == GLFW_PRESS || action == GLFW_REPEAT)){
-      yrot -= ROT_STEP;
+      if (action == GLFW_REPEAT) {
+        yrot -= 10 * ROT_STEP;
+      }
+      else {
+        yrot -= ROT_STEP;
+      }
     } 
     else if (key == GLFW_KEY_RIGHT && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      yrot += ROT_STEP;
+      if (action == GLFW_REPEAT) {
+        yrot += 10 * ROT_STEP;
+      }
+      else {
+        yrot += ROT_STEP;
+      }
     }
     else if (key == GLFW_KEY_UP && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      xrot -= ROT_STEP;
+      if (action == GLFW_REPEAT) {
+        xrot -= 10 * ROT_STEP;
+      }
+      else {
+        xrot -= ROT_STEP;
+      }
     }
     else if (key == GLFW_KEY_DOWN && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      xrot += ROT_STEP;
+      if (action == GLFW_REPEAT) {
+        xrot += 10 * ROT_STEP;
+      }
+      else {
+        xrot += ROT_STEP;
+      }
     }
     else if (key == GLFW_KEY_PAGE_UP && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      zrot -= ROT_STEP;
+      if (action == GLFW_REPEAT) {
+        zrot -= 10 * ROT_STEP;
+      }
+      else {
+        zrot -= ROT_STEP;
+      }
     }
     else if (key == GLFW_KEY_PAGE_DOWN && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      zrot += ROT_STEP;
+      if (action == GLFW_REPEAT) {
+        zrot += 10 * ROT_STEP;
+      }
+      else {
+        zrot += ROT_STEP;
+      }
     }
     else if (key == GLFW_KEY_W && (action == GLFW_PRESS || action == GLFW_REPEAT)){
       ypos += TRAN_STEP;
@@ -265,7 +295,6 @@ namespace csX75
       xpos += TRAN_STEP;
     }
     else if (key == GLFW_KEY_Z && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      // TODO Zoom in/out
       zpos -= TRAN_STEP; 
     }
     else if (key == GLFW_KEY_X && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
