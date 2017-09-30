@@ -283,22 +283,22 @@ namespace csX75
       }
     }
     else if (key == GLFW_KEY_W && (action == GLFW_PRESS || action == GLFW_REPEAT)){
-      ypos += TRAN_STEP;
+      ypos -= TRAN_STEP;
     } 
     else if (key == GLFW_KEY_A && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      xpos -= TRAN_STEP; 
+      xpos += TRAN_STEP; 
     }
     else if (key == GLFW_KEY_S && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      ypos -= TRAN_STEP;
+      ypos += TRAN_STEP;
     }
     else if (key == GLFW_KEY_D && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      xpos += TRAN_STEP;
+      xpos -= TRAN_STEP;
     }
     else if (key == GLFW_KEY_Z && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      zpos -= TRAN_STEP; 
+      zpos += TRAN_STEP; 
     }
     else if (key == GLFW_KEY_X && (action == GLFW_PRESS || action == GLFW_REPEAT)) {
-      zpos += TRAN_STEP;
+      zpos -= TRAN_STEP;
     }
     else if (key == GLFW_KEY_F && (action == GLFW_PRESS)) {
       load_scene_file();

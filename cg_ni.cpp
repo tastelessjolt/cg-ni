@@ -193,7 +193,7 @@ void printState()
 {
   if (load_done == -1)
   {
-    std::cout << ((clip == 1)?"Loaded clipped data":"Loaded all data") << std::endl;
+    std::cout << "Clipping: " << ((clip == 1)?"Enabled":"Disabled") << std::endl;
   }
 }
 
@@ -251,20 +251,12 @@ void get_points_after_clip(glm::vec4 &a, glm::vec4 &b, GLuint cscav_a, GLuint cs
   if (cscav_a & 0b100000)
   {
 
-    // glm::vec4 e = glm::vec4(t_a.w, 0.0, 0.0, 0.0);
-    // glm::vec4 n = glm::vec4(t_a.w, 0.0, 0.0, 0.0);
-    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-   
     GLfloat t = (t_b.x - t_b.w)/((t_b.x - t_b.w)-(t_a.x - t_a.w));
     t_a = t * t_a + t_b * ( 1 - t );
   }
   // -x edge
   if (cscav_a & 0b010000)
   {
-    // glm::vec4 e = glm::vec4(-t_a.w, 0.0, 0.0, 0.0);
-    // glm::vec4 n = glm::vec4(-t_a.w, 0.0, 0.0, 0.0);
-    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    // t_a = t_a + t * (t_b - t_a);
 
     GLfloat t = (t_b.x + t_b.w)/((t_b.x + t_b.w)-(t_a.x + t_a.w));
     t_a = t * t_a + t_b * ( 1 - t );
@@ -272,10 +264,6 @@ void get_points_after_clip(glm::vec4 &a, glm::vec4 &b, GLuint cscav_a, GLuint cs
   // +y edge
   if (cscav_a & 0b001000)
   {
-    // glm::vec4 e = glm::vec4(0.0, t_a.w, 0.0, 0.0);
-    // glm::vec4 n = glm::vec4(0.0, t_a.w, 0.0, 0.0);
-    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    // t_a = t_a + t * (t_b - t_a);
   
     GLfloat t = (t_b.y - t_b.w)/((t_b.y - t_b.w)-(t_a.y - t_a.w));
     t_a = t * t_a + t_b * ( 1 - t );
@@ -283,10 +271,6 @@ void get_points_after_clip(glm::vec4 &a, glm::vec4 &b, GLuint cscav_a, GLuint cs
   // -y edge
   if (cscav_a & 0b000100)
   {
-    // glm::vec4 e = glm::vec4(0.0, -t_a.w, 0.0, 0.0);
-    // glm::vec4 n = glm::vec4(0.0, -t_a.w, 0.0, 0.0);
-    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    // t_a = t_a + t * (t_b - t_a);
 
     GLfloat t = (t_b.y + t_b.w)/((t_b.y + t_b.w)-(t_a.y + t_a.w));
     t_a = t * t_a + t_b * ( 1 - t );
@@ -294,10 +278,6 @@ void get_points_after_clip(glm::vec4 &a, glm::vec4 &b, GLuint cscav_a, GLuint cs
   // +z edge
   if (cscav_a & 0b000010)
   {
-    // glm::vec4 e = glm::vec4(0.0, 0.0, t_a.w, 0.0);
-    // glm::vec4 n = glm::vec4(0.0, 0.0, t_a.w, 0.0);
-    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    // t_a = t_a + t * (t_b - t_a);
 
     GLfloat t = (t_b.z - t_b.w)/((t_b.z - t_b.w)-(t_a.z - t_a.w));
     t_a = t * t_a + t_b * ( 1 - t );
@@ -305,10 +285,6 @@ void get_points_after_clip(glm::vec4 &a, glm::vec4 &b, GLuint cscav_a, GLuint cs
   // -z edge
   if (cscav_a & 0b000001)
   {
-    // glm::vec4 e = glm::vec4(0.0, 0.0, -t_a.w, 0.0);
-    // glm::vec4 n = glm::vec4(0.0, 0.0, -t_a.w, 0.0);
-    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    // t_a = t_a + t * (t_b - t_a);
   
     GLfloat t = (t_b.z + t_b.w)/((t_b.z + t_b.w)-(t_a.z + t_a.w));
     t_a = t * t_a + t_b * ( 1 - t );
@@ -318,10 +294,6 @@ void get_points_after_clip(glm::vec4 &a, glm::vec4 &b, GLuint cscav_a, GLuint cs
   // +x edge
   if (cscav_b & 0b100000)
   {
-    // glm::vec4 e = glm::vec4(t_b.w, 0.0, 0.0, 0.0);
-    // glm::vec4 n = glm::vec4(t_b.w, 0.0, 0.0, 0.0);
-    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    // t_b = t_a + t * (t_b - t_a);
   
     GLfloat t = (t_b.x - t_b.w)/((t_b.x - t_b.w)-(t_a.x - t_a.w));
     t_b = t * t_a + t_b * ( 1 - t );
@@ -329,10 +301,6 @@ void get_points_after_clip(glm::vec4 &a, glm::vec4 &b, GLuint cscav_a, GLuint cs
   // -x edge
   if (cscav_b & 0b010000)
   {
-    // glm::vec4 e = glm::vec4(-t_b.w, 0.0, 0.0, 0.0);
-    // glm::vec4 n = glm::vec4(-t_b.w, 0.0, 0.0, 0.0);
-    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    // t_b = t_a + t * (t_b - t_a);
   
     GLfloat t = (t_b.x + t_b.w)/((t_b.x + t_b.w)-(t_a.x + t_a.w));
     t_b = t * t_a + t_b * ( 1 - t );
@@ -341,10 +309,6 @@ void get_points_after_clip(glm::vec4 &a, glm::vec4 &b, GLuint cscav_a, GLuint cs
   // +y edge
   if (cscav_b & 0b001000)
   {
-    // glm::vec4 e = glm::vec4(0.0, t_b.w, 0.0, 0.0);
-    // glm::vec4 n = glm::vec4(0.0, t_b.w, 0.0, 0.0);
-    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    // t_b = t_a + t * (t_b - t_a);
 
     GLfloat t = (t_b.y - t_b.w)/((t_b.y - t_b.w)-(t_a.y - t_a.w));  
     t_b = t * t_a + t_b * ( 1 - t );
@@ -353,10 +317,6 @@ void get_points_after_clip(glm::vec4 &a, glm::vec4 &b, GLuint cscav_a, GLuint cs
   // -y edge
   if (cscav_b & 0b000100)
   {
-    // glm::vec4 e = glm::vec4(0.0, -t_b.w, 0.0, 0.0);
-    // glm::vec4 n = glm::vec4(0.0, -t_b.w, 0.0, 0.0);
-    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    // t_b = t_a + t * (t_b - t_a);
 
     GLfloat t = (t_b.y + t_b.w)/((t_b.y + t_b.w)-(t_a.y + t_a.w));
     t_b = t * t_a + t_b * ( 1 - t );
@@ -365,10 +325,6 @@ void get_points_after_clip(glm::vec4 &a, glm::vec4 &b, GLuint cscav_a, GLuint cs
   // +z edge
   if (cscav_b & 0b000010)
   {
-    // glm::vec4 e = glm::vec4(0.0, 0.0, t_b.w, 0.0);
-    // glm::vec4 n = glm::vec4(0.0, 0.0, t_b.w, 0.0);
-    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    // t_b = t_a + t * (t_b - t_a);
 
     GLfloat t = (t_b.z - t_b.w)/((t_b.z - t_b.w)-(t_a.z - t_a.w));
     t_b = t * t_a + t_b * ( 1 - t );
@@ -377,10 +333,6 @@ void get_points_after_clip(glm::vec4 &a, glm::vec4 &b, GLuint cscav_a, GLuint cs
   // -z edge
   if (cscav_b & 0b000001)
   {
-    // glm::vec4 e = glm::vec4(0.0, 0.0, -t_b.w, 0.0);
-    // glm::vec4 n = glm::vec4(0.0, 0.0, -t_b.w, 0.0);
-    // GLfloat t = (glm::dot(n,e)-glm::dot(n,t_a))/(glm::dot(n,t_b)-glm::dot(n,t_a));
-    // t_b = t_a + t * (t_b - t_a);
   
     GLfloat t = (t_b.z + t_b.w)/((t_b.z + t_b.w)-(t_a.z + t_a.w));
     t_b = t * t_a + t_b * ( 1 - t ); 
@@ -406,7 +358,7 @@ std::vector<GLfloat> srtn_ctr_ccol(std::vector<GLfloat> points, std::vector<GLui
         v.push_back(points[18*i+l]);
       }
     }
-    
+
     // one point inside
      else if (cscav[3*i] == 0 and cscav[3*i+1] != 0 and cscav[3*i+2] != 0)
     {
@@ -454,6 +406,7 @@ std::vector<GLfloat> srtn_ctr_ccol(std::vector<GLfloat> points, std::vector<GLui
       pushPoint(v, points[trid + 12 + 3], points[trid + 12 + 4], points[trid + 12 + 5]);
 
     }
+    
      else if (cscav[3*i] != 0 and cscav[3*i+1] != 0 and cscav[3*i+2] == 0)
     {
       int trid = 18*i;
@@ -604,7 +557,6 @@ void clip_points(glm::mat4 transform){
 
     for (std::vector<GLfloat>::iterator i = scenetriangles[k].begin(); i != scenetriangles[k].end(); i+=6)
     {
-      // std::cout << *i << ", " << *(i+1) << ", " << *(i+2) << std::endl;
       cscav.push_back(calc_cscav_value(transform * objectViewTranform[k] * glm::vec4(*i, *(i+1), *(i+2), 1.0)));
     }
 
@@ -742,7 +694,7 @@ void renderGL(void)
       glfwGetWindowSize(window, &width, &height);
       GLfloat l = 0, b = 0;
       GLfloat r = width, t = height;
-      sceneTranform = secondary_ortho * ((glm::mat4)glm::ortho(-1.0, 1.0, -1.0, 1.0, -1.0, 1.0)) * ((glm::mat4)glm::ortho((double)l, (double)r, (double)b, (double)t, -1.0, 1.0)) * ((glm::mat4)make_ndcs2dcs(l, r, b, t)) * WCS2CCS;
+      sceneTranform = secondary_ortho * ((glm::mat4)glm::ortho(-0.5, 0.5, -0.5, 0.5, -1.0, 1.0)) * ((glm::mat4)glm::ortho((double)l, (double)r, (double)b, (double)t, -1.0, 1.0)) * ((glm::mat4)make_ndcs2dcs(l, r, b, t)) * WCS2CCS;
     break; 
   }
   
